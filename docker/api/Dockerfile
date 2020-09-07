@@ -1,6 +1,6 @@
-FROM golang:1.12
+FROM golang:1.15
 
-ENV PKG_PATH /go/src/github.com/yzmw1213/GoMicroApp
+ENV PKG_PATH /go/src/github.com/yzmw1213/PostService
 ENV GOROOT=/usr/local/go
 ENV GOPATH=/go
 ENV GOBIN=$GOPATH/bin
@@ -30,7 +30,7 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
     && tar -C /usr/local/bin -xzvf dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
     && rm dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz
 
-WORKDIR /go/src/github.com/yzmw1213/GoMicroApp
+WORKDIR /go/src/github.com/yzmw1213/PostService
 
 COPY . $PKG_PATH
 RUN go mod download

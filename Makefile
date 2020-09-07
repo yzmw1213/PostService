@@ -4,8 +4,9 @@ generate:
 
 # test go
 test:
-	docker-compose exec blog_api go test -v ./grpc
+	docker-compose exec post_api go test -v ./grpc; \
+	docker-compose exec post_api go test -v ./usecase/interactor
 
 # golint
 lint:
-	docker-compose exec blog_api golint ./...
+	docker-compose exec post_api golint ./...

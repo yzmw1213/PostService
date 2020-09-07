@@ -16,3 +16,6 @@ terraform.tfstate.backup
 
 # terraform keys
 infra/keys
+
+#vscode
+.vscode

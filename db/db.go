@@ -6,17 +6,16 @@ import (
 
 	// gormのmysql接続用
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"github.com/yzmw1213/GoMicroApp/domain/model"
+	"github.com/yzmw1213/PostService/domain/model"
 
 	"github.com/jinzhu/gorm"
 )
 
 var (
 	// DB データベース構造体
-	DB   *gorm.DB
-	blog model.Blog
+	DB *gorm.DB
 	// TableName サービステーブル名
-	TableName string = "blogs"
+	TableName string = "posts"
 )
 
 func initDB() {
@@ -57,7 +56,7 @@ func GetDB() *gorm.DB {
 
 func autoMigration() {
 	fmt.Println("migration")
-	err := DB.AutoMigrate(&model.Blog{}).Error
+	err := DB.AutoMigrate(&model.Post{}).Error
 	if err != nil {
 		panic(err)
 	}

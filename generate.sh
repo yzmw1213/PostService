@@ -1,7 +1,7 @@
 #!/bin/sh
 DIR=$(cd "$(dirname "$0")" || exit 1 ; pwd);
-OUT_DIR="/grpc/blog_grpc";
-PROTO_FILE="blog.proto";
+OUT_DIR="/grpc/post_grpc";
+PROTO_FILE="post.proto";
 
 protoc \
   --go_out=plugins=grpc:"${DIR}${OUT_DIR}" \

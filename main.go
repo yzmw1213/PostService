@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/yzmw1213/GoMicroApp/db"
-	"github.com/yzmw1213/GoMicroApp/grpc"
+	"github.com/yzmw1213/PostService/db"
+	"github.com/yzmw1213/PostService/grpc"
 )
 
 func main() {
@@ -11,6 +11,6 @@ func main() {
 
 func start() {
 	db.Init()
-	grpc.NewBlogGrpcServer()
+	grpc.NewPostGrpcServer()
 	defer db.Close()
 }

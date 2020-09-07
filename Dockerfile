@@ -1,4 +1,4 @@
-FROM golang:1.12 as build
+FROM golang:1.15 as build
 
 ENV GOROOT=/usr/local/go
 ENV GOPATH=/go
@@ -24,7 +24,7 @@ RUN mkdir -p /tmp/protoc && \
   cd /tmp && \  
   rm -r /tmp/protoc
 
-WORKDIR /go/src/github.com/yzmw1213/GoMicroApp
+WORKDIR /go/src/github.com/yzmw1213/PostService
 
 COPY . .
 RUN go mod download
@@ -39,6 +39,6 @@ FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
-COPY --from=build /go/src/github.com/yzmw1213/GoMicroApp/app .
-EXPOSE 50051
+COPY --from=build /go/src/github.com/yzmw1213/PostService/app .
+EXPOSE 50053
 CMD ["./app"]

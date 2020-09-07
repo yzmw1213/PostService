@@ -8,34 +8,29 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/yzmw1213/PostService/domain/model"
+	"github.com/yzmw1213/PostService/grpc/post_grpc"
+	"github.com/yzmw1213/PostService/usecase/interactor"
 
-	"github.com/yzmw1213/GoMicroApp/domain/model"
-	"github.com/yzmw1213/GoMicroApp/grpc/blog_grpc"
-	"github.com/yzmw1213/GoMicroApp/usecase/interactor"
-
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
 type server struct {
-	Usecase interactor.BlogInteractor
+	Usecase interactor.PostInteractor
 }
 
-// NewBlogGrpcServer gRPCサーバー起動
-func NewBlogGrpcServer() {
-	lis, err := net.Listen("tcp", "0.0.0.0:50051")
+// NewPostGrpcServer gRPCサーバー起動
+func NewPostGrpcServer() {
+	lis, err := net.Listen("tcp", "0.0.0.0:50053")
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
 
-	blogServer := &server{}
+	postServer := &server{}
 
-	opts := []grpc.ServerOption{}
+	s := makeServer()
 
-	s := grpc.NewServer(opts...)
-
-	blog_grpc.RegisterBlogServiceServer(s, blogServer)
+	post_grpc.RegisterPostServiceServer(s, postServer)
 
 	// Register reflection service on gRPC server.
 	reflection.Register(s)
@@ -60,56 +55,45 @@ func NewBlogGrpcServer() {
 
 }
 
-func (s server) CreateBlog(ctx context.Context, req *blog_grpc.CreateBlogRequest) (*blog_grpc.CreateBlogResponse, error) {
-	postData := req.GetBlog()
-	validate := validator.New()
+func (s server) CreatePost(ctx context.Context, req *post_grpc.CreatePostRequest) (*post_grpc.CreatePostResponse, error) {
+	postData := req.GetPost()
 
-	blog := &model.Blog{
-		AuthorID: postData.GetAuthorId(),
-		Title:    postData.GetTitle(),
-		Content:  postData.GetContent(),
-	}
+	post := makeModel(postData)
 
-	// Blog構造体のバリデーション
-	if error := validate.Struct(blog); error != nil {
-		return nil, error
-	}
-
-	if err := s.Usecase.Create(blog); err != nil {
+	post, err := s.Usecase.Create(post)
+	if err != nil {
 		return nil, err
 	}
-	res := &blog_grpc.CreateBlogResponse{
-		Blog: postData,
+	res := &post_grpc.CreatePostResponse{
+		Post: makeGrpcPost(post),
 	}
+	return res, nil
+
+}
+
+func (s server) DeletePost(ctx context.Context, req *post_grpc.DeletePostRequest) (*post_grpc.DeletePostResponse, error) {
+	postData := req.GetId()
+	post := &model.Post{
+		ID: postData,
+	}
+	if err := s.Usecase.Delete(post); err != nil {
+		return nil, err
+	}
+	res := &post_grpc.DeletePostResponse{}
 	return res, nil
 }
 
-func (s server) DeleteBlog(ctx context.Context, req *blog_grpc.DeleteBlogRequest) (*blog_grpc.DeleteBlogResponse, error) {
-	postData := req.GetBlogId()
-	blog := &model.Blog{
-		BlogID: postData,
-	}
-	if err := s.Usecase.Delete(blog); err != nil {
-		return nil, err
-	}
-	res := &blog_grpc.DeleteBlogResponse{}
-	return res, nil
-}
-
-func (s server) ListBlog(req *blog_grpc.ListBlogRequest, stream blog_grpc.BlogService_ListBlogServer) error {
+func (s server) ListPost(req *post_grpc.ListPostRequest, stream post_grpc.PostService_ListPostServer) error {
 	rows, err := s.Usecase.List()
 	if err != nil {
 		return err
 	}
-	for _, blog := range rows {
-		blog := &blog_grpc.Blog{
-			BlogId:   blog.BlogID,
-			AuthorId: blog.AuthorID,
-			Title:    blog.Title,
-			Content:  blog.Content,
+	for _, post := range rows {
+		post := &post_grpc.Post{
+			Id: post.ID,
 		}
-		res := &blog_grpc.ListBlogResponse{
-			Blog: blog,
+		res := &post_grpc.ListPostResponse{
+			Post: post,
 		}
 		sendErr := stream.Send(res)
 		if sendErr != nil {
@@ -121,45 +105,64 @@ func (s server) ListBlog(req *blog_grpc.ListBlogRequest, stream blog_grpc.BlogSe
 	return nil
 }
 
-func (s server) ReadBlog(ctx context.Context, req *blog_grpc.ReadBlogRequest) (*blog_grpc.ReadBlogResponse, error) {
-	blogID := req.GetBlogId()
-	row, err := s.Usecase.Read(blogID)
+func (s server) ReadPost(ctx context.Context, req *post_grpc.ReadPostRequest) (*post_grpc.ReadPostResponse, error) {
+	ID := req.GetId()
+	row, err := s.Usecase.Read(ID)
 	if err != nil {
 		return nil, err
 	}
-	blog := &blog_grpc.Blog{
-		BlogId:   row.BlogID,
-		AuthorId: row.AuthorID,
-		Title:    row.Title,
-		Content:  row.Content,
+	post := &post_grpc.Post{
+		Id:      row.ID,
+		UserId:  row.UserID,
+		Content: row.Content,
 	}
-	res := &blog_grpc.ReadBlogResponse{
-		Blog: blog,
+	res := &post_grpc.ReadPostResponse{
+		Post: post,
 	}
 	return res, nil
 }
 
-func (s server) UpdateBlog(ctx context.Context, req *blog_grpc.UpdateBlogRequest) (*blog_grpc.UpdateBlogResponse, error) {
-	postData := req.GetBlog()
-	validate := validator.New()
+func (s server) UpdatePost(ctx context.Context, req *post_grpc.UpdatePostRequest) (*post_grpc.UpdatePostResponse, error) {
+	postData := req.GetPost()
 
-	blog := &model.Blog{
-		BlogID:   postData.GetBlogId(),
-		AuthorID: postData.GetAuthorId(),
-		Title:    postData.GetTitle(),
-		Content:  postData.GetContent(),
-	}
+	post := makeModel(postData)
 
-	// Blog構造体のバリデーション
-	if error := validate.Struct(blog); error != nil {
-		return nil, error
-	}
-
-	if err := s.Usecase.Update(blog); err != nil {
+	updatedPost, err := s.Usecase.Update(post)
+	if err != nil {
 		return nil, err
 	}
-	res := &blog_grpc.UpdateBlogResponse{
-		Blog: postData,
+	res := &post_grpc.UpdatePostResponse{
+		Post: makeGrpcPost(updatedPost),
 	}
 	return res, nil
+}
+
+func makeModel(gUser *post_grpc.Post) *model.Post {
+	post := &model.Post{
+		ID:      gUser.GetId(),
+		UserID:  gUser.GetUserId(),
+		Content: gUser.GetContent(),
+	}
+	return post
+}
+
+func makeGrpcPost(post *model.Post) *post_grpc.Post {
+	gPost := &post_grpc.Post{
+		Id:      post.ID,
+		UserId:  post.UserID,
+		Content: post.Content,
+	}
+	return gPost
+}
+
+func createPostRequest(post *post_grpc.Post) *post_grpc.CreatePostRequest {
+	return &post_grpc.CreatePostRequest{
+		Post: post,
+	}
+}
+
+func updatePostRequest(post *post_grpc.Post) *post_grpc.UpdatePostRequest {
+	return &post_grpc.UpdatePostRequest{
+		Post: post,
+	}
 }

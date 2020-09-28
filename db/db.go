@@ -14,8 +14,10 @@ import (
 var (
 	// DB データベース構造体
 	DB *gorm.DB
-	// TableName サービステーブル名
-	TableName string = "posts"
+	// PostTableName 投稿サービステーブル名
+	PostTableName string = "posts"
+	// TagTableName タグサービステーブル名
+	TagTableName string = "tags"
 )
 
 func initDB() {
@@ -57,6 +59,10 @@ func GetDB() *gorm.DB {
 func autoMigration() {
 	fmt.Println("migration")
 	err := DB.AutoMigrate(&model.Post{}).Error
+	if err != nil {
+		panic(err)
+	}
+	err = DB.AutoMigrate(&model.Tag{}).Error
 	if err != nil {
 		panic(err)
 	}

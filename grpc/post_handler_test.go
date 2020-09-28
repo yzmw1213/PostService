@@ -168,17 +168,17 @@ func TestDeletePost(t *testing.T) {
 
 	createRes, err := client.CreatePost(ctx, createReq)
 
-	deletePostId := createRes.GetPost().GetId()
+	deletePostID := createRes.GetPost().GetId()
 
 	deleteReq := &post_grpc.DeletePostRequest{
-		Id: deletePostId,
+		Id: deletePostID,
 	}
 
 	_, err = client.DeletePost(ctx, deleteReq)
 	assert.Equal(t, nil, err)
 
 	readReq := &post_grpc.ReadPostRequest{
-		Id: deletePostId,
+		Id: deletePostID,
 	}
 
 	readRes, err := client.ReadPost(ctx, readReq)

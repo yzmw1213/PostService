@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"log"
 
 	"github.com/pkg/errors"
 
@@ -21,8 +20,8 @@ func transmitStatusInterceptor(ctx context.Context, req interface{}, info *grpc.
 
 	// メソッドの処理後に呼ばれる処理
 	if err != nil {
-		log.Printf("error: %+v", err)     // スタックトレースを出力
-		err = convertErrorWithStatus(err) // ステータス付きのエラーに変換。後述
+		// ステータス付きのエラーに変換。
+		err = convertErrorWithStatus(err)
 	}
 
 	// レスポンスを返す
@@ -30,40 +29,49 @@ func transmitStatusInterceptor(ctx context.Context, req interface{}, info *grpc.
 }
 
 func convertErrorWithStatus(err error) error {
-	var errorMessage string
+	var errorStatus string
 	var fieldName string
 	var typ string
 
 	// validation エラーの場合
 	if _, ok := errors.Cause(err).(validator.ValidationErrors); ok {
-		log.Println("ValidationErrors")
 		for _, err := range err.(validator.ValidationErrors) {
-
 			fieldName = err.Field()
-
 			switch fieldName {
 			case "Content":
 				typ = err.Tag()
 				switch typ {
 				case "max":
-					errorMessage = messageContentMax
+					errorStatus = messageContentMax
+					break
 				case "min":
-					errorMessage = messageContentMin
+					errorStatus = messageContentMin
+					break
+				}
+			// タグ名のバリデーションエラー
+			case "TagName":
+				typ = err.Tag()
+				switch typ {
+				case "min":
+					errorStatus = StatusTagNameStringCount
+					break
+				case "max":
+					errorStatus = StatusTagNameStringCount
+					break
 				}
 			}
-
 		}
 	} else {
-		errorMessage = err.Error()
+		errorStatus = err.Error()
 	}
 
-	st := status.New(codes.InvalidArgument, "some error occurred")
+	st := status.New(codes.InvalidArgument, errorStatus)
 
 	v := &errdetails.BadRequest{
 		FieldViolations: []*errdetails.BadRequest_FieldViolation{
 			{
 				Field:       fieldName,
-				Description: errorMessage,
+				Description: errorStatus,
 			},
 		},
 	}

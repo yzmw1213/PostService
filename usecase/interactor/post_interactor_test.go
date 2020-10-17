@@ -9,14 +9,8 @@ import (
 	"github.com/yzmw1213/PostService/domain/model"
 )
 
-var (
-	testUserId  int32 = 123456
-	testContent       = "content"
-	zero        int32 = 0
-)
-
 var DemoPost = model.Post{
-	UserID:  testUserId,
+	UserID:  testPostUserID,
 	Content: testContent,
 }
 
@@ -43,7 +37,7 @@ func TestCreateContentNull(t *testing.T) {
 
 func TestCreateContentTooLong(t *testing.T) {
 	var i PostInteractor
-	post := &model.Post{UserID: testUserId, Content: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+	post := &model.Post{UserID: testPostUserID, Content: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
 	_, err := i.Create(post)
 
 	assert.NotEqual(t, nil, err)
@@ -51,7 +45,7 @@ func TestCreateContentTooLong(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	var i PostInteractor
-	post := &model.Post{UserID: testUserId, Content: testContent}
+	post := &model.Post{UserID: testPostUserID, Content: testContent}
 	cretedPost, err := i.Create(post)
 
 	assert.Equal(t, nil, err)
@@ -68,7 +62,7 @@ func TestDelete(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	var i PostInteractor
-	post := &model.Post{UserID: testUserId, Content: testContent}
+	post := &model.Post{UserID: testPostUserID, Content: testContent}
 	cretedPost, err := i.Create(post)
 
 	assert.Equal(t, nil, err)

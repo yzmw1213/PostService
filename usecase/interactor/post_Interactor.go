@@ -106,6 +106,6 @@ func (b *PostInteractor) Read(ID int32) (model.Post, error) {
 		log.Printf("Error happend while Read for ID: %v\n", ID)
 		return model.Post{}, err
 	}
-	DB.Table(db.TableName).Scan(row)
+	DB.Table(db.PostTableName).Scan(row)
 	return post, nil
 }

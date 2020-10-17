@@ -25,11 +25,14 @@ func NewPostGrpcServer() {
 		log.Fatalf("Failed to listen: %v", err)
 	}
 
-	postServer := &server{}
+	server := &server{}
 
 	s := makeServer()
 
-	post_grpc.RegisterPostServiceServer(s, postServer)
+	// 投稿サービス登録
+	post_grpc.RegisterPostServiceServer(s, server)
+	// タグサービス登録
+	post_grpc.RegisterTagServiceServer(s, server)
 
 	// Register reflection service on gRPC server.
 	reflection.Register(s)

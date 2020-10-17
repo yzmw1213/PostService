@@ -24,14 +24,6 @@ message CreateTagResponse {
   ResponseStatus status=1;
 }
 
-message ReadTagRequest {
-  string tag_id=1;
-}
-
-message ReadTagResponse {
-  Tag tag=1;
-}
-
 message UpdateTagRequest {
   Tag tag=1;
 }
@@ -40,16 +32,24 @@ message UpdateTagResponse {
   ResponseStatus status=1;
 }
 
+message DeleteTagRequest {
+  int32 tag_id =1;
+}
+
+message DeleteTagResponse {
+  ResponseStatus status=1;
+}
+
 message ListTagRequest {
 }
 
 message ListTagResponse {
-  Tag tag=1;
+  repeated Tag tag=1;
 }
 
 service TagService {
   rpc CreateTag(CreateTagRequest) returns (CreateTagResponse);
-  rpc ReadTag(ReadTagRequest) returns (ReadTagResponse);
+  rpc DeleteTag(DeleteTagRequest) returns (DeleteTagResponse);
   rpc UpdateTag(UpdateTagRequest) returns (UpdateTagResponse);
-  rpc ListTag(ListTagRequest) returns (stream ListTagResponse);
+  rpc ListTag(ListTagRequest) returns (ListTagResponse);
 }

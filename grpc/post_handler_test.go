@@ -3,7 +3,6 @@ package grpc
 import (
 	"context"
 	"log"
-	"net"
 	"testing"
 	"time"
 
@@ -15,24 +14,18 @@ import (
 	"google.golang.org/grpc/test/bufconn"
 )
 
-const bufSize = 1024 * 1024
-
-var lis *bufconn.Listener
-var err error
-
 func init() {
 	lis = bufconn.Listen(bufSize)
 	s := makeServer()
+	// 投稿サービス登録
 	post_grpc.RegisterPostServiceServer(s, &server{})
+	// タグサービス登録
+	post_grpc.RegisterTagServiceServer(s, &server{})
 	go func() {
 		if err := s.Serve(lis); err != nil {
 			log.Fatal(err)
 		}
 	}()
-}
-
-func bufDialer(ctx context.Context, address string) (net.Conn, error) {
-	return lis.Dial()
 }
 
 func TestCreatePost(t *testing.T) {
@@ -112,9 +105,6 @@ func getErrorDetail(err error) (string, string) {
 			}
 		}
 	}
-	log.Println("getErrorDetail")
-	log.Println(field)
-	log.Println(description)
 
 	return field, description
 }

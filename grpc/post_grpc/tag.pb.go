@@ -249,100 +249,6 @@ func (x *CreateTagResponse) GetStatus() *ResponseStatus {
 	return nil
 }
 
-type ReadTagRequest struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	TagId string `protobuf:"bytes,1,opt,name=tag_id,json=tagId,proto3" json:"tag_id,omitempty"`
-}
-
-func (x *ReadTagRequest) Reset() {
-	*x = ReadTagRequest{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_tag_proto_msgTypes[4]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ReadTagRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ReadTagRequest) ProtoMessage() {}
-
-func (x *ReadTagRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_tag_proto_msgTypes[4]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ReadTagRequest.ProtoReflect.Descriptor instead.
-func (*ReadTagRequest) Descriptor() ([]byte, []int) {
-	return file_tag_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *ReadTagRequest) GetTagId() string {
-	if x != nil {
-		return x.TagId
-	}
-	return ""
-}
-
-type ReadTagResponse struct {
-	state         protoimpl.MessageState
-	sizeCache     protoimpl.SizeCache
-	unknownFields protoimpl.UnknownFields
-
-	Tag *Tag `protobuf:"bytes,1,opt,name=tag,proto3" json:"tag,omitempty"`
-}
-
-func (x *ReadTagResponse) Reset() {
-	*x = ReadTagResponse{}
-	if protoimpl.UnsafeEnabled {
-		mi := &file_tag_proto_msgTypes[5]
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		ms.StoreMessageInfo(mi)
-	}
-}
-
-func (x *ReadTagResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ReadTagResponse) ProtoMessage() {}
-
-func (x *ReadTagResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_tag_proto_msgTypes[5]
-	if protoimpl.UnsafeEnabled && x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ReadTagResponse.ProtoReflect.Descriptor instead.
-func (*ReadTagResponse) Descriptor() ([]byte, []int) {
-	return file_tag_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *ReadTagResponse) GetTag() *Tag {
-	if x != nil {
-		return x.Tag
-	}
-	return nil
-}
-
 type UpdateTagRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -354,7 +260,7 @@ type UpdateTagRequest struct {
 func (x *UpdateTagRequest) Reset() {
 	*x = UpdateTagRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tag_proto_msgTypes[6]
+		mi := &file_tag_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -367,7 +273,7 @@ func (x *UpdateTagRequest) String() string {
 func (*UpdateTagRequest) ProtoMessage() {}
 
 func (x *UpdateTagRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_tag_proto_msgTypes[6]
+	mi := &file_tag_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -380,7 +286,7 @@ func (x *UpdateTagRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateTagRequest.ProtoReflect.Descriptor instead.
 func (*UpdateTagRequest) Descriptor() ([]byte, []int) {
-	return file_tag_proto_rawDescGZIP(), []int{6}
+	return file_tag_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *UpdateTagRequest) GetTag() *Tag {
@@ -401,7 +307,7 @@ type UpdateTagResponse struct {
 func (x *UpdateTagResponse) Reset() {
 	*x = UpdateTagResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_tag_proto_msgTypes[7]
+		mi := &file_tag_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -414,7 +320,7 @@ func (x *UpdateTagResponse) String() string {
 func (*UpdateTagResponse) ProtoMessage() {}
 
 func (x *UpdateTagResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_tag_proto_msgTypes[7]
+	mi := &file_tag_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -427,10 +333,104 @@ func (x *UpdateTagResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateTagResponse.ProtoReflect.Descriptor instead.
 func (*UpdateTagResponse) Descriptor() ([]byte, []int) {
-	return file_tag_proto_rawDescGZIP(), []int{7}
+	return file_tag_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *UpdateTagResponse) GetStatus() *ResponseStatus {
+	if x != nil {
+		return x.Status
+	}
+	return nil
+}
+
+type DeleteTagRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	TagId int32 `protobuf:"varint,1,opt,name=tag_id,json=tagId,proto3" json:"tag_id,omitempty"`
+}
+
+func (x *DeleteTagRequest) Reset() {
+	*x = DeleteTagRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_tag_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeleteTagRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteTagRequest) ProtoMessage() {}
+
+func (x *DeleteTagRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_tag_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteTagRequest.ProtoReflect.Descriptor instead.
+func (*DeleteTagRequest) Descriptor() ([]byte, []int) {
+	return file_tag_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *DeleteTagRequest) GetTagId() int32 {
+	if x != nil {
+		return x.TagId
+	}
+	return 0
+}
+
+type DeleteTagResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Status *ResponseStatus `protobuf:"bytes,1,opt,name=status,proto3" json:"status,omitempty"`
+}
+
+func (x *DeleteTagResponse) Reset() {
+	*x = DeleteTagResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_tag_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *DeleteTagResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteTagResponse) ProtoMessage() {}
+
+func (x *DeleteTagResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_tag_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteTagResponse.ProtoReflect.Descriptor instead.
+func (*DeleteTagResponse) Descriptor() ([]byte, []int) {
+	return file_tag_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *DeleteTagResponse) GetStatus() *ResponseStatus {
 	if x != nil {
 		return x.Status
 	}
@@ -480,7 +480,7 @@ type ListTagResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Tag *Tag `protobuf:"bytes,1,opt,name=tag,proto3" json:"tag,omitempty"`
+	Tag []*Tag `protobuf:"bytes,1,rep,name=tag,proto3" json:"tag,omitempty"`
 }
 
 func (x *ListTagResponse) Reset() {
@@ -515,7 +515,7 @@ func (*ListTagResponse) Descriptor() ([]byte, []int) {
 	return file_tag_proto_rawDescGZIP(), []int{9}
 }
 
-func (x *ListTagResponse) GetTag() *Tag {
+func (x *ListTagResponse) GetTag() []*Tag {
 	if x != nil {
 		return x.Tag
 	}
@@ -546,45 +546,46 @@ var file_tag_proto_rawDesc = []byte{
 	0x6e, 0x73, 0x65, 0x12, 0x31, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01, 0x20,
 	0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x2e,
 	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x06,
-	0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x27, 0x0a, 0x0e, 0x52, 0x65, 0x61, 0x64, 0x54, 0x61,
+	0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x34, 0x0a, 0x10, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65,
+	0x54, 0x61, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x20, 0x0a, 0x03, 0x74, 0x61,
+	0x67, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67,
+	0x72, 0x70, 0x63, 0x2e, 0x54, 0x61, 0x67, 0x52, 0x03, 0x74, 0x61, 0x67, 0x22, 0x46, 0x0a, 0x11,
+	0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x31, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x19, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x52, 0x65,
+	0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x06, 0x73, 0x74,
+	0x61, 0x74, 0x75, 0x73, 0x22, 0x29, 0x0a, 0x10, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x54, 0x61,
 	0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x15, 0x0a, 0x06, 0x74, 0x61, 0x67, 0x5f,
-	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74, 0x61, 0x67, 0x49, 0x64, 0x22,
-	0x33, 0x0a, 0x0f, 0x52, 0x65, 0x61, 0x64, 0x54, 0x61, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x12, 0x20, 0x0a, 0x03, 0x74, 0x61, 0x67, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32,
-	0x0e, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x54, 0x61, 0x67, 0x52,
-	0x03, 0x74, 0x61, 0x67, 0x22, 0x34, 0x0a, 0x10, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x61,
-	0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x20, 0x0a, 0x03, 0x74, 0x61, 0x67, 0x18,
-	0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70,
-	0x63, 0x2e, 0x54, 0x61, 0x67, 0x52, 0x03, 0x74, 0x61, 0x67, 0x22, 0x46, 0x0a, 0x11, 0x55, 0x70,
-	0x64, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
-	0x31, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32,
-	0x19, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x52, 0x65, 0x73, 0x70,
-	0x6f, 0x6e, 0x73, 0x65, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74,
-	0x75, 0x73, 0x22, 0x10, 0x0a, 0x0e, 0x4c, 0x69, 0x73, 0x74, 0x54, 0x61, 0x67, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x22, 0x33, 0x0a, 0x0f, 0x4c, 0x69, 0x73, 0x74, 0x54, 0x61, 0x67, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x20, 0x0a, 0x03, 0x74, 0x61, 0x67, 0x18, 0x01,
-	0x20, 0x01, 0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70, 0x63,
-	0x2e, 0x54, 0x61, 0x67, 0x52, 0x03, 0x74, 0x61, 0x67, 0x32, 0xa2, 0x02, 0x0a, 0x0a, 0x54, 0x61,
-	0x67, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x46, 0x0a, 0x09, 0x43, 0x72, 0x65, 0x61,
-	0x74, 0x65, 0x54, 0x61, 0x67, 0x12, 0x1b, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70,
-	0x63, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65,
-	0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x43,
-	0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x12, 0x40, 0x0a, 0x07, 0x52, 0x65, 0x61, 0x64, 0x54, 0x61, 0x67, 0x12, 0x19, 0x2e, 0x70, 0x6f,
-	0x73, 0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x52, 0x65, 0x61, 0x64, 0x54, 0x61, 0x67, 0x52,
-	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1a, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72,
-	0x70, 0x63, 0x2e, 0x52, 0x65, 0x61, 0x64, 0x54, 0x61, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
-	0x73, 0x65, 0x12, 0x46, 0x0a, 0x09, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67, 0x12,
-	0x1b, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x70, 0x64, 0x61,
-	0x74, 0x65, 0x54, 0x61, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x70,
-	0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54,
-	0x61, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x42, 0x0a, 0x07, 0x4c, 0x69,
-	0x73, 0x74, 0x54, 0x61, 0x67, 0x12, 0x19, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70,
-	0x63, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x54, 0x61, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
-	0x1a, 0x1a, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x4c, 0x69, 0x73,
-	0x74, 0x54, 0x61, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x30, 0x01, 0x42, 0x0d,
-	0x5a, 0x0b, 0x2e, 0x3b, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x62, 0x06, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x05, 0x52, 0x05, 0x74, 0x61, 0x67, 0x49, 0x64, 0x22,
+	0x46, 0x0a, 0x11, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x54, 0x61, 0x67, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x31, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01,
+	0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70, 0x63,
+	0x2e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52,
+	0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x10, 0x0a, 0x0e, 0x4c, 0x69, 0x73, 0x74, 0x54,
+	0x61, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x33, 0x0a, 0x0f, 0x4c, 0x69, 0x73,
+	0x74, 0x54, 0x61, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x20, 0x0a, 0x03,
+	0x74, 0x61, 0x67, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x70, 0x6f, 0x73, 0x74,
+	0x5f, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x54, 0x61, 0x67, 0x52, 0x03, 0x74, 0x61, 0x67, 0x32, 0xa6,
+	0x02, 0x0a, 0x0a, 0x54, 0x61, 0x67, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x46, 0x0a,
+	0x09, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67, 0x12, 0x1b, 0x2e, 0x70, 0x6f, 0x73,
+	0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67,
+	0x72, 0x70, 0x63, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x46, 0x0a, 0x09, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x54,
+	0x61, 0x67, 0x12, 0x1b, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x44,
+	0x65, 0x6c, 0x65, 0x74, 0x65, 0x54, 0x61, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x1c, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x44, 0x65, 0x6c, 0x65,
+	0x74, 0x65, 0x54, 0x61, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x46, 0x0a,
+	0x09, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67, 0x12, 0x1b, 0x2e, 0x70, 0x6f, 0x73,
+	0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1c, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67,
+	0x72, 0x70, 0x63, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x54, 0x61, 0x67, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x40, 0x0a, 0x07, 0x4c, 0x69, 0x73, 0x74, 0x54, 0x61, 0x67,
+	0x12, 0x19, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x4c, 0x69, 0x73,
+	0x74, 0x54, 0x61, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1a, 0x2e, 0x70, 0x6f,
+	0x73, 0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x54, 0x61, 0x67, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x0d, 0x5a, 0x0b, 0x2e, 0x3b, 0x70, 0x6f, 0x73,
+	0x74, 0x5f, 0x67, 0x72, 0x70, 0x63, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -605,27 +606,27 @@ var file_tag_proto_goTypes = []interface{}{
 	(*ResponseStatus)(nil),    // 1: post_grpc.ResponseStatus
 	(*CreateTagRequest)(nil),  // 2: post_grpc.CreateTagRequest
 	(*CreateTagResponse)(nil), // 3: post_grpc.CreateTagResponse
-	(*ReadTagRequest)(nil),    // 4: post_grpc.ReadTagRequest
-	(*ReadTagResponse)(nil),   // 5: post_grpc.ReadTagResponse
-	(*UpdateTagRequest)(nil),  // 6: post_grpc.UpdateTagRequest
-	(*UpdateTagResponse)(nil), // 7: post_grpc.UpdateTagResponse
+	(*UpdateTagRequest)(nil),  // 4: post_grpc.UpdateTagRequest
+	(*UpdateTagResponse)(nil), // 5: post_grpc.UpdateTagResponse
+	(*DeleteTagRequest)(nil),  // 6: post_grpc.DeleteTagRequest
+	(*DeleteTagResponse)(nil), // 7: post_grpc.DeleteTagResponse
 	(*ListTagRequest)(nil),    // 8: post_grpc.ListTagRequest
 	(*ListTagResponse)(nil),   // 9: post_grpc.ListTagResponse
 }
 var file_tag_proto_depIdxs = []int32{
 	0,  // 0: post_grpc.CreateTagRequest.tag:type_name -> post_grpc.Tag
 	1,  // 1: post_grpc.CreateTagResponse.status:type_name -> post_grpc.ResponseStatus
-	0,  // 2: post_grpc.ReadTagResponse.tag:type_name -> post_grpc.Tag
-	0,  // 3: post_grpc.UpdateTagRequest.tag:type_name -> post_grpc.Tag
-	1,  // 4: post_grpc.UpdateTagResponse.status:type_name -> post_grpc.ResponseStatus
+	0,  // 2: post_grpc.UpdateTagRequest.tag:type_name -> post_grpc.Tag
+	1,  // 3: post_grpc.UpdateTagResponse.status:type_name -> post_grpc.ResponseStatus
+	1,  // 4: post_grpc.DeleteTagResponse.status:type_name -> post_grpc.ResponseStatus
 	0,  // 5: post_grpc.ListTagResponse.tag:type_name -> post_grpc.Tag
 	2,  // 6: post_grpc.TagService.CreateTag:input_type -> post_grpc.CreateTagRequest
-	4,  // 7: post_grpc.TagService.ReadTag:input_type -> post_grpc.ReadTagRequest
-	6,  // 8: post_grpc.TagService.UpdateTag:input_type -> post_grpc.UpdateTagRequest
+	6,  // 7: post_grpc.TagService.DeleteTag:input_type -> post_grpc.DeleteTagRequest
+	4,  // 8: post_grpc.TagService.UpdateTag:input_type -> post_grpc.UpdateTagRequest
 	8,  // 9: post_grpc.TagService.ListTag:input_type -> post_grpc.ListTagRequest
 	3,  // 10: post_grpc.TagService.CreateTag:output_type -> post_grpc.CreateTagResponse
-	5,  // 11: post_grpc.TagService.ReadTag:output_type -> post_grpc.ReadTagResponse
-	7,  // 12: post_grpc.TagService.UpdateTag:output_type -> post_grpc.UpdateTagResponse
+	7,  // 11: post_grpc.TagService.DeleteTag:output_type -> post_grpc.DeleteTagResponse
+	5,  // 12: post_grpc.TagService.UpdateTag:output_type -> post_grpc.UpdateTagResponse
 	9,  // 13: post_grpc.TagService.ListTag:output_type -> post_grpc.ListTagResponse
 	10, // [10:14] is the sub-list for method output_type
 	6,  // [6:10] is the sub-list for method input_type
@@ -689,30 +690,6 @@ func file_tag_proto_init() {
 			}
 		}
 		file_tag_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ReadTagRequest); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_tag_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ReadTagResponse); i {
-			case 0:
-				return &v.state
-			case 1:
-				return &v.sizeCache
-			case 2:
-				return &v.unknownFields
-			default:
-				return nil
-			}
-		}
-		file_tag_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UpdateTagRequest); i {
 			case 0:
 				return &v.state
@@ -724,8 +701,32 @@ func file_tag_proto_init() {
 				return nil
 			}
 		}
-		file_tag_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+		file_tag_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UpdateTagResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_tag_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeleteTagRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_tag_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*DeleteTagResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -794,9 +795,9 @@ const _ = grpc.SupportPackageIsVersion6
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type TagServiceClient interface {
 	CreateTag(ctx context.Context, in *CreateTagRequest, opts ...grpc.CallOption) (*CreateTagResponse, error)
-	ReadTag(ctx context.Context, in *ReadTagRequest, opts ...grpc.CallOption) (*ReadTagResponse, error)
+	DeleteTag(ctx context.Context, in *DeleteTagRequest, opts ...grpc.CallOption) (*DeleteTagResponse, error)
 	UpdateTag(ctx context.Context, in *UpdateTagRequest, opts ...grpc.CallOption) (*UpdateTagResponse, error)
-	ListTag(ctx context.Context, in *ListTagRequest, opts ...grpc.CallOption) (TagService_ListTagClient, error)
+	ListTag(ctx context.Context, in *ListTagRequest, opts ...grpc.CallOption) (*ListTagResponse, error)
 }
 
 type tagServiceClient struct {
@@ -816,9 +817,9 @@ func (c *tagServiceClient) CreateTag(ctx context.Context, in *CreateTagRequest, 
 	return out, nil
 }
 
-func (c *tagServiceClient) ReadTag(ctx context.Context, in *ReadTagRequest, opts ...grpc.CallOption) (*ReadTagResponse, error) {
-	out := new(ReadTagResponse)
-	err := c.cc.Invoke(ctx, "/post_grpc.TagService/ReadTag", in, out, opts...)
+func (c *tagServiceClient) DeleteTag(ctx context.Context, in *DeleteTagRequest, opts ...grpc.CallOption) (*DeleteTagResponse, error) {
+	out := new(DeleteTagResponse)
+	err := c.cc.Invoke(ctx, "/post_grpc.TagService/DeleteTag", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -834,44 +835,21 @@ func (c *tagServiceClient) UpdateTag(ctx context.Context, in *UpdateTagRequest, 
 	return out, nil
 }
 
-func (c *tagServiceClient) ListTag(ctx context.Context, in *ListTagRequest, opts ...grpc.CallOption) (TagService_ListTagClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_TagService_serviceDesc.Streams[0], "/post_grpc.TagService/ListTag", opts...)
+func (c *tagServiceClient) ListTag(ctx context.Context, in *ListTagRequest, opts ...grpc.CallOption) (*ListTagResponse, error) {
+	out := new(ListTagResponse)
+	err := c.cc.Invoke(ctx, "/post_grpc.TagService/ListTag", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &tagServiceListTagClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type TagService_ListTagClient interface {
-	Recv() (*ListTagResponse, error)
-	grpc.ClientStream
-}
-
-type tagServiceListTagClient struct {
-	grpc.ClientStream
-}
-
-func (x *tagServiceListTagClient) Recv() (*ListTagResponse, error) {
-	m := new(ListTagResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 // TagServiceServer is the server API for TagService service.
 type TagServiceServer interface {
 	CreateTag(context.Context, *CreateTagRequest) (*CreateTagResponse, error)
-	ReadTag(context.Context, *ReadTagRequest) (*ReadTagResponse, error)
+	DeleteTag(context.Context, *DeleteTagRequest) (*DeleteTagResponse, error)
 	UpdateTag(context.Context, *UpdateTagRequest) (*UpdateTagResponse, error)
-	ListTag(*ListTagRequest, TagService_ListTagServer) error
+	ListTag(context.Context, *ListTagRequest) (*ListTagResponse, error)
 }
 
 // UnimplementedTagServiceServer can be embedded to have forward compatible implementations.
@@ -881,14 +859,14 @@ type UnimplementedTagServiceServer struct {
 func (*UnimplementedTagServiceServer) CreateTag(context.Context, *CreateTagRequest) (*CreateTagResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTag not implemented")
 }
-func (*UnimplementedTagServiceServer) ReadTag(context.Context, *ReadTagRequest) (*ReadTagResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ReadTag not implemented")
+func (*UnimplementedTagServiceServer) DeleteTag(context.Context, *DeleteTagRequest) (*DeleteTagResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTag not implemented")
 }
 func (*UnimplementedTagServiceServer) UpdateTag(context.Context, *UpdateTagRequest) (*UpdateTagResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTag not implemented")
 }
-func (*UnimplementedTagServiceServer) ListTag(*ListTagRequest, TagService_ListTagServer) error {
-	return status.Errorf(codes.Unimplemented, "method ListTag not implemented")
+func (*UnimplementedTagServiceServer) ListTag(context.Context, *ListTagRequest) (*ListTagResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListTag not implemented")
 }
 
 func RegisterTagServiceServer(s *grpc.Server, srv TagServiceServer) {
@@ -913,20 +891,20 @@ func _TagService_CreateTag_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_ReadTag_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReadTagRequest)
+func _TagService_DeleteTag_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteTagRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(TagServiceServer).ReadTag(ctx, in)
+		return srv.(TagServiceServer).DeleteTag(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/post_grpc.TagService/ReadTag",
+		FullMethod: "/post_grpc.TagService/DeleteTag",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(TagServiceServer).ReadTag(ctx, req.(*ReadTagRequest))
+		return srv.(TagServiceServer).DeleteTag(ctx, req.(*DeleteTagRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -949,25 +927,22 @@ func _TagService_UpdateTag_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _TagService_ListTag_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(ListTagRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
+func _TagService_ListTag_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListTagRequest)
+	if err := dec(in); err != nil {
+		return nil, err
 	}
-	return srv.(TagServiceServer).ListTag(m, &tagServiceListTagServer{stream})
-}
-
-type TagService_ListTagServer interface {
-	Send(*ListTagResponse) error
-	grpc.ServerStream
-}
-
-type tagServiceListTagServer struct {
-	grpc.ServerStream
-}
-
-func (x *tagServiceListTagServer) Send(m *ListTagResponse) error {
-	return x.ServerStream.SendMsg(m)
+	if interceptor == nil {
+		return srv.(TagServiceServer).ListTag(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/post_grpc.TagService/ListTag",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TagServiceServer).ListTag(ctx, req.(*ListTagRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 var _TagService_serviceDesc = grpc.ServiceDesc{
@@ -979,20 +954,18 @@ var _TagService_serviceDesc = grpc.ServiceDesc{
 			Handler:    _TagService_CreateTag_Handler,
 		},
 		{
-			MethodName: "ReadTag",
-			Handler:    _TagService_ReadTag_Handler,
+			MethodName: "DeleteTag",
+			Handler:    _TagService_DeleteTag_Handler,
 		},
 		{
 			MethodName: "UpdateTag",
 			Handler:    _TagService_UpdateTag_Handler,
 		},
-	},
-	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "ListTag",
-			Handler:       _TagService_ListTag_Handler,
-			ServerStreams: true,
+			MethodName: "ListTag",
+			Handler:    _TagService_ListTag_Handler,
 		},
 	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "tag.proto",
 }

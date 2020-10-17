@@ -69,15 +69,10 @@ func (i *TagInteractor) List() ([]model.Tag, error) {
 func listAllTag(ctx context.Context) ([]model.Tag, error) {
 	DB := db.GetDB()
 
-	rows, err := DB.Find(&tags).Rows()
+	_ = DB.Find(&tags)
 	if err != nil {
 		log.Println("Error occured")
 		return nil, err
-	}
-
-	for rows.Next() {
-		DB.ScanRows(rows, &tag)
-		tags = append(tags, tag)
 	}
 	return tags, nil
 }
@@ -106,6 +101,7 @@ func listAllValidTag(ctx context.Context) ([]model.Tag, error) {
 // Update タグを更新する
 func (i *TagInteractor) Update(postData *model.Tag) (*model.Tag, error) {
 	DB := db.GetDB()
+	validate = validator.New()
 
 	// Tag構造体のバリデーション
 	if err := validate.Struct(postData); err != nil {
@@ -124,6 +120,20 @@ func (i *TagInteractor) GetTagByTagName(tagName string) (model.Tag, error) {
 
 	DB := db.GetDB()
 	row := DB.Where("tag_name = ?", tagName).First(&tag)
+	if err := row.Error; err != nil {
+		return tag, err
+	}
+	DB.Table(db.TagTableName).Scan(row)
+
+	return tag, nil
+}
+
+// GetTagByTagID TagIDを元にタグを1件取得する
+func (i *TagInteractor) GetTagByTagID(tagID int32) (model.Tag, error) {
+	var tag model.Tag
+
+	DB := db.GetDB()
+	row := DB.Where("id = ?", tagID).First(&tag)
 	if err := row.Error; err != nil {
 		return tag, err
 	}

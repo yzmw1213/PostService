@@ -70,6 +70,7 @@ func TestDeleteTag(t *testing.T) {
 	}
 	createdTag, err := i.Create(tag)
 	assert.Equal(t, nil, err)
+	log.Printf("created tag id: %v\n", createdTag.ID)
 
 	err = i.DeleteByID(createdTag.ID)
 	assert.Equal(t, nil, err)

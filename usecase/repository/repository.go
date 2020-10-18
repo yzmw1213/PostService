@@ -9,3 +9,13 @@ type PostRepository interface {
 	List() ([]model.Post, error)
 	Update(*model.Post) (*model.Post, error)
 }
+
+// TagRepository タグサービスの抽象定義
+type TagRepository interface {
+	Create(*model.Tag) (*model.Tag, error)
+	DeleteByID(int32) error
+	GetTagByTagName(string) (model.Tag, error)
+	GetValidTag() ([]model.Tag, error)
+	List() ([]model.Tag, error)
+	Update(*model.Tag) (*model.Tag, error)
+}

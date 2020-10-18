@@ -11,11 +11,10 @@ require (
 	github.com/jinzhu/gorm v1.9.12
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/stretchr/testify v1.6.0
-	github.com/yzmw1213/validator v9.31.0+incompatible
+	github.com/stretchr/testify v1.6.0 // indirect
 	golang.org/x/net v0.0.0-20200501053045-e0ff5e5a1de5 // indirect
 	golang.org/x/sys v0.0.0-20200501052902-10377860bb8e // indirect
-	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
+	golang.org/x/text v0.3.3 // indirect
 	google.golang.org/genproto v0.0.0-20200904004341-0bd0a958aa1d
 	google.golang.org/grpc v1.29.1
 	google.golang.org/protobuf v1.24.0

@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package post_grpc;
+
+option go_package = ".;post_grpc";
+
+message Tag {
+  int32 tag_id =1;
+  string tag_name =2;
+  int32 status = 3;
+  string createUser_id =4;
+  string updateUser_id =5;
+}
+
+message ResponseStatus {
+  string code=1;
+}
+
+message CreateTagRequest {
+  Tag tag=1;
+}
+
+message CreateTagResponse {
+  ResponseStatus status=1;
+}
+
+message UpdateTagRequest {
+  Tag tag=1;
+}
+
+message UpdateTagResponse {
+  ResponseStatus status=1;
+}
+
+message DeleteTagRequest {
+  int32 tag_id =1;
+}
+
+message DeleteTagResponse {
+  ResponseStatus status=1;
+}
+
+message ListTagRequest {
+}
+
+message ListTagResponse {
+  repeated Tag tag=1;
+}
+
+service TagService {
+  rpc CreateTag(CreateTagRequest) returns (CreateTagResponse);
+  rpc DeleteTag(DeleteTagRequest) returns (DeleteTagResponse);
+  rpc UpdateTag(UpdateTagRequest) returns (UpdateTagResponse);
+  rpc ListTag(ListTagRequest) returns (ListTagResponse);
+}

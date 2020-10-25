@@ -99,7 +99,7 @@ func (b *PostInteractor) Update(postData *model.Post) (*model.Post, error) {
 }
 
 // Read IDを元に投稿を1件取得する
-func (b *PostInteractor) Read(ID int32) (model.Post, error) {
+func (b *PostInteractor) Read(ID uint32) (model.Post, error) {
 	DB := db.GetDB()
 	row := DB.First(&post, ID)
 	if err := row.Error; err != nil {

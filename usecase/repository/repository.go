@@ -13,7 +13,7 @@ type PostRepository interface {
 // TagRepository タグサービスの抽象定義
 type TagRepository interface {
 	Create(*model.Tag) (*model.Tag, error)
-	DeleteByID(int32) error
+	DeleteByID(uint32) error
 	GetTagByTagName(string) (model.Tag, error)
 	GetValidTag() ([]model.Tag, error)
 	List() ([]model.Tag, error)

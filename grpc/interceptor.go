@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"log"
 
 	"github.com/pkg/errors"
 
@@ -14,7 +15,7 @@ import (
 
 func transmitStatusInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	// メソッドより前に呼ばれる処理
-
+	log.Println("transmitStatusInterceptor")
 	// メソッドの処理
 	m, err := handler(ctx, req)
 

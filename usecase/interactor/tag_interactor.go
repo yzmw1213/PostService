@@ -15,9 +15,9 @@ var (
 	tag  model.Tag
 	tags []model.Tag
 	// ValidTagStatus タグ公開ステータス
-	ValidTagStatus int32 = 1
+	ValidTagStatus uint32 = 1
 	// InValidTagStatus タグ非公開ステータス
-	InValidTagStatus int32 = 2
+	InValidTagStatus uint32 = 2
 )
 
 // TagInteractor タグサービスを提供するメソッド群
@@ -42,7 +42,7 @@ func (i *TagInteractor) Create(postData *model.Tag) (*model.Tag, error) {
 }
 
 // DeleteByID 指定したIDのタグ1件を削除
-func (i *TagInteractor) DeleteByID(id int32) error {
+func (i *TagInteractor) DeleteByID(id uint32) error {
 	DB := db.GetDB()
 	if err := DB.Where("id = ? ", id).Delete(&tag).Error; err != nil {
 		return err
@@ -129,7 +129,7 @@ func (i *TagInteractor) GetTagByTagName(tagName string) (model.Tag, error) {
 }
 
 // GetTagByTagID TagIDを元にタグを1件取得する
-func (i *TagInteractor) GetTagByTagID(tagID int32) (model.Tag, error) {
+func (i *TagInteractor) GetTagByTagID(tagID uint32) (model.Tag, error) {
 	var tag model.Tag
 
 	DB := db.GetDB()

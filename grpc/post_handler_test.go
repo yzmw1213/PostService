@@ -176,9 +176,9 @@ func TestDeletePost(t *testing.T) {
 
 	_, d := getErrorDetail(err)
 
-	assert.Equal(t, int32(0), readRes.GetPost().GetId())
+	assert.Equal(t, zero, readRes.GetPost().GetId())
 	assert.Equal(t, "", readRes.GetPost().GetContent())
-	assert.Equal(t, int32(0), readRes.GetPost().GetUserId())
+	assert.Equal(t, zero, readRes.GetPost().GetUserId())
 	assert.Equal(t, "record not found", d)
 
 }

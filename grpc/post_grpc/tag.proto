@@ -5,9 +5,9 @@ package post_grpc;
 option go_package = ".;post_grpc";
 
 message Tag {
-  int32 tag_id =1;
+  uint32 tag_id =1;
   string tag_name =2;
-  int32 status = 3;
+  uint32 status = 3;
   string createUser_id =4;
   string updateUser_id =5;
 }
@@ -33,7 +33,7 @@ message UpdateTagResponse {
 }
 
 message DeleteTagRequest {
-  int32 tag_id =1;
+  uint32 tag_id =1;
 }
 
 message DeleteTagResponse {

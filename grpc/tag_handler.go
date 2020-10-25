@@ -158,7 +158,7 @@ func (s server) tagExistsByTagName(tagName string) bool {
 }
 
 // tagExistsByTagID　IDが一致するタグの登録があるかの判定
-func (s server) tagExistsByTagID(tagID int32) bool {
+func (s server) tagExistsByTagID(tagID uint32) bool {
 	tag, _ := s.TagUsecase.GetTagByTagID(tagID)
 	log.Println(tag)
 	if tag.ID == 0 {

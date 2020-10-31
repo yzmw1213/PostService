@@ -2,8 +2,9 @@ package interactor
 
 var (
 	testPostUserID uint32 = 123456
+	testTitle      string = "title"
 	testContent           = "content"
 	testTagName           = "テストタグ"
-	testUserID     string = "TESTUSER001"
+	testUserID     uint32 = 1
 	zero           uint32 = 0
 )

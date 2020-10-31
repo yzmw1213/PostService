@@ -5,10 +5,10 @@ import (
 	"log"
 
 	"github.com/yzmw1213/PostService/domain/model"
-	"github.com/yzmw1213/PostService/grpc/post_grpc"
+	"github.com/yzmw1213/PostService/grpc/postservice"
 )
 
-func (s server) CreatePost(ctx context.Context, req *post_grpc.CreatePostRequest) (*post_grpc.CreatePostResponse, error) {
+func (s server) CreatePost(ctx context.Context, req *postservice.CreatePostRequest) (*postservice.CreatePostResponse, error) {
 	postData := req.GetPost()
 
 	post := makePostModel(postData)
@@ -17,14 +17,14 @@ func (s server) CreatePost(ctx context.Context, req *post_grpc.CreatePostRequest
 	if err != nil {
 		return nil, err
 	}
-	res := &post_grpc.CreatePostResponse{
+	res := &postservice.CreatePostResponse{
 		Post: makeGrpcPost(post),
 	}
 	return res, nil
 
 }
 
-func (s server) DeletePost(ctx context.Context, req *post_grpc.DeletePostRequest) (*post_grpc.DeletePostResponse, error) {
+func (s server) DeletePost(ctx context.Context, req *postservice.DeletePostRequest) (*postservice.DeletePostResponse, error) {
 	postData := req.GetId()
 	post := &model.Post{
 		ID: postData,
@@ -32,20 +32,20 @@ func (s server) DeletePost(ctx context.Context, req *post_grpc.DeletePostRequest
 	if err := s.PostUsecase.Delete(post); err != nil {
 		return nil, err
 	}
-	res := &post_grpc.DeletePostResponse{}
+	res := &postservice.DeletePostResponse{}
 	return res, nil
 }
 
-func (s server) ListPost(req *post_grpc.ListPostRequest, stream post_grpc.PostService_ListPostServer) error {
+func (s server) ListPost(req *postservice.ListPostRequest, stream postservice.PostService_ListPostServer) error {
 	rows, err := s.PostUsecase.List()
 	if err != nil {
 		return err
 	}
 	for _, post := range rows {
-		post := &post_grpc.Post{
+		post := &postservice.Post{
 			Id: post.ID,
 		}
-		res := &post_grpc.ListPostResponse{
+		res := &postservice.ListPostResponse{
 			Post: post,
 		}
 		sendErr := stream.Send(res)
@@ -58,24 +58,24 @@ func (s server) ListPost(req *post_grpc.ListPostRequest, stream post_grpc.PostSe
 	return nil
 }
 
-func (s server) ReadPost(ctx context.Context, req *post_grpc.ReadPostRequest) (*post_grpc.ReadPostResponse, error) {
+func (s server) ReadPost(ctx context.Context, req *postservice.ReadPostRequest) (*postservice.ReadPostResponse, error) {
 	ID := req.GetId()
 	row, err := s.PostUsecase.Read(ID)
 	if err != nil {
 		return nil, err
 	}
-	post := &post_grpc.Post{
-		Id:      row.ID,
-		UserId:  row.UserID,
-		Content: row.Content,
+	post := &postservice.Post{
+		Id:           row.ID,
+		CreateUserId: row.CreateUserID,
+		Content:      row.Content,
 	}
-	res := &post_grpc.ReadPostResponse{
+	res := &postservice.ReadPostResponse{
 		Post: post,
 	}
 	return res, nil
 }
 
-func (s server) UpdatePost(ctx context.Context, req *post_grpc.UpdatePostRequest) (*post_grpc.UpdatePostResponse, error) {
+func (s server) UpdatePost(ctx context.Context, req *postservice.UpdatePostRequest) (*postservice.UpdatePostResponse, error) {
 	postData := req.GetPost()
 
 	post := makePostModel(postData)
@@ -84,38 +84,40 @@ func (s server) UpdatePost(ctx context.Context, req *post_grpc.UpdatePostRequest
 	if err != nil {
 		return nil, err
 	}
-	res := &post_grpc.UpdatePostResponse{
+	res := &postservice.UpdatePostResponse{
 		Post: makeGrpcPost(updatedPost),
 	}
 	return res, nil
 }
 
-func makePostModel(gUser *post_grpc.Post) *model.Post {
+func makePostModel(gUser *postservice.Post) *model.Post {
 	post := &model.Post{
-		ID:      gUser.GetId(),
-		UserID:  gUser.GetUserId(),
-		Content: gUser.GetContent(),
+		ID:           gUser.GetId(),
+		Title:        gUser.GetTitle(),
+		Content:      gUser.GetContent(),
+		CreateUserID: gUser.GetCreateUserId(),
 	}
 	return post
 }
 
-func makeGrpcPost(post *model.Post) *post_grpc.Post {
-	gPost := &post_grpc.Post{
-		Id:      post.ID,
-		UserId:  post.UserID,
-		Content: post.Content,
+func makeGrpcPost(post *model.Post) *postservice.Post {
+	gPost := &postservice.Post{
+		Id:           post.ID,
+		Title:        post.Title,
+		Content:      post.Content,
+		CreateUserId: post.CreateUserID,
 	}
 	return gPost
 }
 
-func createPostRequest(post *post_grpc.Post) *post_grpc.CreatePostRequest {
-	return &post_grpc.CreatePostRequest{
+func createPostRequest(post *postservice.Post) *postservice.CreatePostRequest {
+	return &postservice.CreatePostRequest{
 		Post: post,
 	}
 }
 
-func updatePostRequest(post *post_grpc.Post) *post_grpc.UpdatePostRequest {
-	return &post_grpc.UpdatePostRequest{
+func updatePostRequest(post *postservice.Post) *postservice.UpdatePostRequest {
+	return &postservice.UpdatePostRequest{
 		Post: post,
 	}
 }

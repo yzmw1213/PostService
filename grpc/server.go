@@ -7,7 +7,8 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/yzmw1213/PostService/grpc/post_grpc"
+	"github.com/yzmw1213/PostService/grpc/postservice"
+	"github.com/yzmw1213/PostService/grpc/tagservice"
 	"github.com/yzmw1213/PostService/usecase/interactor"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -30,9 +31,9 @@ func NewPostGrpcServer() {
 	s := makeServer()
 
 	// 投稿サービス登録
-	post_grpc.RegisterPostServiceServer(s, server)
+	postservice.RegisterPostServiceServer(s, server)
 	// タグサービス登録
-	post_grpc.RegisterTagServiceServer(s, server)
+	tagservice.RegisterTagServiceServer(s, server)
 
 	// Register reflection service on gRPC server.
 	reflection.Register(s)

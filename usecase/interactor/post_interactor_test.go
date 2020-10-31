@@ -10,8 +10,15 @@ import (
 )
 
 var DemoPost = model.Post{
-	UserID:  testPostUserID,
-	Content: testContent,
+	CreateUserID: testPostUserID,
+	Title:        testTitle,
+	Content:      testContent,
+}
+
+var DemoPostContentNull = model.Post{
+	CreateUserID: testPostUserID,
+	Title:        testTitle,
+	Content:      "",
 }
 
 // TestCreate ユーザー作成の正常系
@@ -22,22 +29,22 @@ func TestCreate(t *testing.T) {
 	createdUser, err := i.Create(post)
 
 	assert.Equal(t, nil, err)
-	assert.Equal(t, post.UserID, createdUser.UserID)
+	assert.Equal(t, post.CreateUserID, createdUser.CreateUserID)
 	assert.Equal(t, post.Content, createdUser.Content)
 	assert.NotEqual(t, 0, createdUser.ID)
 }
 
 func TestCreateContentNull(t *testing.T) {
 	var i PostInteractor
-	DemoPost.Content = ""
-	_, err := i.Create(&DemoPost)
+	post := &DemoPostContentNull
+	_, err := i.Create(post)
 
 	assert.NotEqual(t, nil, err)
 }
 
 func TestCreateContentTooLong(t *testing.T) {
 	var i PostInteractor
-	post := &model.Post{UserID: testPostUserID, Content: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
+	post := &model.Post{CreateUserID: testPostUserID, Title: testTitle, Content: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}
 	_, err := i.Create(post)
 
 	assert.NotEqual(t, nil, err)
@@ -45,7 +52,12 @@ func TestCreateContentTooLong(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	var i PostInteractor
-	post := &model.Post{UserID: testPostUserID, Content: testContent}
+	post := &model.Post{
+		Title:        testTitle,
+		Content:      testContent,
+		CreateUserID: testUserID,
+	}
+
 	cretedPost, err := i.Create(post)
 
 	assert.Equal(t, nil, err)
@@ -55,14 +67,19 @@ func TestDelete(t *testing.T) {
 	deletedPost, err := i.Read(cretedPost.ID)
 	assert.NotEqual(t, nil, err)
 	assert.Equal(t, zero, deletedPost.ID)
-	assert.Equal(t, zero, deletedPost.UserID)
+	assert.Equal(t, zero, deletedPost.CreateUserID)
+	assert.Equal(t, "", deletedPost.Title)
 	assert.Equal(t, "", deletedPost.Content)
 
 }
 
 func TestUpdate(t *testing.T) {
 	var i PostInteractor
-	post := &model.Post{UserID: testPostUserID, Content: testContent}
+	post := &model.Post{
+		Title:        testTitle,
+		Content:      testContent,
+		CreateUserID: testUserID,
+	}
 	cretedPost, err := i.Create(post)
 
 	assert.Equal(t, nil, err)
@@ -78,7 +95,7 @@ func TestUpdate(t *testing.T) {
 	assert.Equal(t, nil, err)
 	assert.NotEqual(t, "content", updatedPost.Content)
 	assert.Equal(t, cretedPost.ID, updatedPost.ID)
-	assert.Equal(t, cretedPost.UserID, updatedPost.UserID)
+	assert.Equal(t, cretedPost.CreateUserID, updatedPost.CreateUserID)
 	assert.Equal(t, createdAt, updatedPost.CreatedAt)
 	assert.NotEqual(t, readPost.UpdatedAt, updatedPost.UpdatedAt)
 

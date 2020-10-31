@@ -7,7 +7,8 @@ import (
 	"time"
 
 	"github.com/go-playground/assert/v2"
-	"github.com/yzmw1213/PostService/grpc/post_grpc"
+	"github.com/yzmw1213/PostService/grpc/postservice"
+	"github.com/yzmw1213/PostService/grpc/tagservice"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/status"
@@ -18,9 +19,9 @@ func init() {
 	lis = bufconn.Listen(bufSize)
 	s := makeServer()
 	// 投稿サービス登録
-	post_grpc.RegisterPostServiceServer(s, &server{})
+	postservice.RegisterPostServiceServer(s, &server{})
 	// タグサービス登録
-	post_grpc.RegisterTagServiceServer(s, &server{})
+	tagservice.RegisterTagServiceServer(s, &server{})
 	go func() {
 		if err := s.Serve(lis); err != nil {
 			log.Fatal(err)
@@ -29,7 +30,7 @@ func init() {
 }
 
 func TestCreatePost(t *testing.T) {
-	var createPosts []*post_grpc.Post
+	var createPosts []*postservice.Post
 	ctx := context.Background()
 	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
 	if err != nil {
@@ -37,25 +38,28 @@ func TestCreatePost(t *testing.T) {
 	}
 	defer conn.Close()
 
-	client := post_grpc.NewPostServiceClient(conn)
+	client := postservice.NewPostServiceClient(conn)
 
-	createPosts = append(createPosts, &post_grpc.Post{
-		UserId:  111111,
-		Content: "Content",
+	createPosts = append(createPosts, &postservice.Post{
+		CreateUserId: 111111,
+		Title:        "Title",
+		Content:      "Content",
 	})
 
-	createPosts = append(createPosts, &post_grpc.Post{
-		UserId:  222222,
-		Content: "Content",
+	createPosts = append(createPosts, &postservice.Post{
+		CreateUserId: 222222,
+		Title:        "Title",
+		Content:      "Content",
 	})
 
-	createPosts = append(createPosts, &post_grpc.Post{
-		UserId:  333333,
-		Content: "Content",
+	createPosts = append(createPosts, &postservice.Post{
+		CreateUserId: 333333,
+		Title:        "Title",
+		Content:      "Content",
 	})
 
 	for _, post := range createPosts {
-		req := &post_grpc.CreatePostRequest{
+		req := &postservice.CreatePostRequest{
 			Post: post,
 		}
 
@@ -66,9 +70,10 @@ func TestCreatePost(t *testing.T) {
 
 // TestCreatepostContentMax Contentが文字数超過の異常系
 func TestCreatepostContentMax(t *testing.T) {
-	var createPost = &post_grpc.Post{
-		UserId:  555555,
-		Content: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+	var createPost = &postservice.Post{
+		CreateUserId: 555555,
+		Title:        "Title",
+		Content:      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 	}
 	ctx := context.Background()
 	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
@@ -77,9 +82,9 @@ func TestCreatepostContentMax(t *testing.T) {
 	}
 	defer conn.Close()
 
-	client := post_grpc.NewPostServiceClient(conn)
+	client := postservice.NewPostServiceClient(conn)
 
-	req := &post_grpc.CreatePostRequest{
+	req := &postservice.CreatePostRequest{
 		Post: createPost,
 	}
 	_, err = client.CreatePost(context.Background(), req)
@@ -111,9 +116,10 @@ func getErrorDetail(err error) (string, string) {
 
 // // TestCreatePostContentNull TitleがNullの異常系
 func TestCreatePostContentNull(t *testing.T) {
-	var createPost = &post_grpc.Post{
-		UserId:  666666,
-		Content: "",
+	var createPost = &postservice.Post{
+		CreateUserId: 666666,
+		Title:        "Title",
+		Content:      "",
 	}
 	ctx := context.Background()
 	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
@@ -122,9 +128,9 @@ func TestCreatePostContentNull(t *testing.T) {
 	}
 	defer conn.Close()
 
-	client := post_grpc.NewPostServiceClient(conn)
+	client := postservice.NewPostServiceClient(conn)
 
-	req := &post_grpc.CreatePostRequest{
+	req := &postservice.CreatePostRequest{
 		Post: createPost,
 	}
 	_, err = client.CreatePost(context.Background(), req)
@@ -145,14 +151,15 @@ func TestDeletePost(t *testing.T) {
 	}
 	defer conn.Close()
 
-	client := post_grpc.NewPostServiceClient(conn)
+	client := postservice.NewPostServiceClient(conn)
 
-	createPost := &post_grpc.Post{
-		UserId:  444444,
-		Content: "Content of the fourth post",
+	createPost := &postservice.Post{
+		CreateUserId: 444444,
+		Title:        "Title",
+		Content:      "Content of the fourth post",
 	}
 
-	createReq := &post_grpc.CreatePostRequest{
+	createReq := &postservice.CreatePostRequest{
 		Post: createPost,
 	}
 
@@ -160,14 +167,14 @@ func TestDeletePost(t *testing.T) {
 
 	deletePostID := createRes.GetPost().GetId()
 
-	deleteReq := &post_grpc.DeletePostRequest{
+	deleteReq := &postservice.DeletePostRequest{
 		Id: deletePostID,
 	}
 
 	_, err = client.DeletePost(ctx, deleteReq)
 	assert.Equal(t, nil, err)
 
-	readReq := &post_grpc.ReadPostRequest{
+	readReq := &postservice.ReadPostRequest{
 		Id: deletePostID,
 	}
 
@@ -178,7 +185,7 @@ func TestDeletePost(t *testing.T) {
 
 	assert.Equal(t, zero, readRes.GetPost().GetId())
 	assert.Equal(t, "", readRes.GetPost().GetContent())
-	assert.Equal(t, zero, readRes.GetPost().GetUserId())
+	assert.Equal(t, zero, readRes.GetPost().GetCreateUserId())
 	assert.Equal(t, "record not found", d)
 
 }
@@ -191,12 +198,13 @@ func TestUpdatePost(t *testing.T) {
 	}
 	defer conn.Close()
 
-	createPost := &post_grpc.Post{
-		UserId:  555555,
-		Content: "Content",
+	createPost := &postservice.Post{
+		CreateUserId: 555555,
+		Title:        "Title",
+		Content:      "Content",
 	}
 
-	client := post_grpc.NewPostServiceClient(conn)
+	client := postservice.NewPostServiceClient(conn)
 
 	createReq := createPostRequest(createPost)
 
@@ -213,7 +221,7 @@ func TestUpdatePost(t *testing.T) {
 
 	updatePost = updateRes.GetPost()
 
-	readReq := &post_grpc.ReadPostRequest{
+	readReq := &postservice.ReadPostRequest{
 		Id: updatePost.Id,
 	}
 

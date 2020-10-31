@@ -58,12 +58,8 @@ func GetDB() *gorm.DB {
 
 func autoMigration() {
 	fmt.Println("migration")
-	err := DB.AutoMigrate(&model.Post{}).Error
-	if err != nil {
-		panic(err)
-	}
-	err = DB.AutoMigrate(&model.Tag{}).Error
-	if err != nil {
-		panic(err)
-	}
+	DB.AutoMigrate(&model.Post{})
+	DB.AutoMigrate(&model.PostApplyUser{})
+	DB.AutoMigrate(&model.PostFavoriteUser{})
+	DB.AutoMigrate(&model.Tag{})
 }

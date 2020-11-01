@@ -27,7 +27,7 @@ message CreatePostRequest {
 }
 
 message CreatePostResponse {
-  Post post=1;
+  ResponseStatus status=1;
 }
 
 message ReadPostRequest {
@@ -43,7 +43,7 @@ message UpdatePostRequest {
 }
 
 message UpdatePostResponse {
-  Post post=1;
+  ResponseStatus status=1;
 }
 
 message DeletePostRequest {
@@ -51,7 +51,7 @@ message DeletePostRequest {
 }
 
 message DeletePostResponse {
-  Post post=1;
+  ResponseStatus status=1;
 }
 
 message ListPostRequest {

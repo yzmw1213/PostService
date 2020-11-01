@@ -11,7 +11,7 @@ import (
 const (
 	// StatusCreateTagSuccess タグ作成成功ステータス
 	StatusCreateTagSuccess string = "TAG_CREATE_SUCCESS"
-	// StatusUpdateTagSuccess タグ作成成功ステータス
+	// StatusUpdateTagSuccess タグ更新作成成功ステータス
 	StatusUpdateTagSuccess string = "TAG_UPDATE_SUCCESS"
 	// StatusDeleteTagSuccess タグ削除成功ステータス
 	StatusDeleteTagSuccess string = "TAG_DELETE_SUCCESS"

@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"testing"
-	"time"
 
 	"github.com/go-playground/assert/v2"
 	"github.com/yzmw1213/PostService/grpc/postservice"
@@ -140,94 +139,5 @@ func TestCreatePostContentNull(t *testing.T) {
 
 	assert.Equal(t, "Content", f)
 	assert.Equal(t, messageContentMin, d)
-
-}
-
-func TestDeletePost(t *testing.T) {
-	ctx := context.Background()
-	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer conn.Close()
-
-	client := postservice.NewPostServiceClient(conn)
-
-	createPost := &postservice.Post{
-		CreateUserId: 444444,
-		Title:        "Title",
-		Content:      "Content of the fourth post",
-	}
-
-	createReq := &postservice.CreatePostRequest{
-		Post: createPost,
-	}
-
-	createRes, err := client.CreatePost(ctx, createReq)
-
-	deletePostID := createRes.GetPost().GetId()
-
-	deleteReq := &postservice.DeletePostRequest{
-		Id: deletePostID,
-	}
-
-	_, err = client.DeletePost(ctx, deleteReq)
-	assert.Equal(t, nil, err)
-
-	readReq := &postservice.ReadPostRequest{
-		Id: deletePostID,
-	}
-
-	readRes, err := client.ReadPost(ctx, readReq)
-	assert.NotEqual(t, nil, err)
-
-	_, d := getErrorDetail(err)
-
-	assert.Equal(t, zero, readRes.GetPost().GetId())
-	assert.Equal(t, "", readRes.GetPost().GetContent())
-	assert.Equal(t, zero, readRes.GetPost().GetCreateUserId())
-	assert.Equal(t, "record not found", d)
-
-}
-
-func TestUpdatePost(t *testing.T) {
-	ctx := context.Background()
-	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer conn.Close()
-
-	createPost := &postservice.Post{
-		CreateUserId: 555555,
-		Title:        "Title",
-		Content:      "Content",
-	}
-
-	client := postservice.NewPostServiceClient(conn)
-
-	createReq := createPostRequest(createPost)
-
-	res, err := client.CreatePost(ctx, createReq)
-
-	updatePost := res.GetPost()
-	updatePost.Content = "Content updated"
-	time.Sleep(time.Second * 10)
-
-	req := updatePostRequest(updatePost)
-	updateRes, err := client.UpdatePost(ctx, req)
-
-	assert.Equal(t, nil, err)
-
-	updatePost = updateRes.GetPost()
-
-	readReq := &postservice.ReadPostRequest{
-		Id: updatePost.Id,
-	}
-
-	readRes, err := client.ReadPost(context.Background(), readReq)
-	assert.Equal(t, nil, err)
-	assert.Equal(t, readRes.Post.Id, updatePost.Id)
-	assert.Equal(t, updatePost.Content, readRes.Post.Content)
 
 }

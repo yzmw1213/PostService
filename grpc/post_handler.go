@@ -8,6 +8,17 @@ import (
 	"github.com/yzmw1213/PostService/grpc/postservice"
 )
 
+const (
+	// StatusCreatePostSuccess 投稿作成成功ステータス
+	StatusCreatePostSuccess string = "POST_CREATE_SUCCESS"
+	// StatusUpdatePostSuccess 投稿更新成功ステータス
+	StatusUpdatePostSuccess string = "POST_UPDATE_SUCCESS"
+	// StatusDeletePostSuccess 投稿削除成功ステータス
+	StatusDeletePostSuccess string = "POST_DELETE_SUCCESS"
+	// StatusPostNotExists 指定した投稿の登録がない時のエラーステータス
+	StatusPostNotExists string = "POST_NOT_EXISTS_ERROR"
+)
+
 func (s server) CreatePost(ctx context.Context, req *postservice.CreatePostRequest) (*postservice.CreatePostResponse, error) {
 	postData := req.GetPost()
 
@@ -17,23 +28,20 @@ func (s server) CreatePost(ctx context.Context, req *postservice.CreatePostReque
 	if err != nil {
 		return nil, err
 	}
-	res := &postservice.CreatePostResponse{
-		Post: makeGrpcPost(post),
-	}
-	return res, nil
-
+	return s.makeCreatePostResponse(StatusCreatePostSuccess), nil
 }
 
 func (s server) DeletePost(ctx context.Context, req *postservice.DeletePostRequest) (*postservice.DeletePostResponse, error) {
-	postData := req.GetId()
+	id := req.GetId()
+
+	// 既に投稿が削除されていないかチェックする
 	post := &model.Post{
-		ID: postData,
+		ID: id,
 	}
 	if err := s.PostUsecase.Delete(post); err != nil {
 		return nil, err
 	}
-	res := &postservice.DeletePostResponse{}
-	return res, nil
+	return s.makeDeletePostResponse(StatusDeletePostSuccess), nil
 }
 
 func (s server) ListPost(req *postservice.ListPostRequest, stream postservice.PostService_ListPostServer) error {
@@ -80,14 +88,11 @@ func (s server) UpdatePost(ctx context.Context, req *postservice.UpdatePostReque
 
 	post := makePostModel(postData)
 
-	updatedPost, err := s.PostUsecase.Update(post)
-	if err != nil {
+	if _, err := s.PostUsecase.Update(post); err != nil {
 		return nil, err
 	}
-	res := &postservice.UpdatePostResponse{
-		Post: makeGrpcPost(updatedPost),
-	}
-	return res, nil
+
+	return s.makeUpdatePostResponse(StatusUpdatePostSuccess), nil
 }
 
 func makePostModel(gUser *postservice.Post) *model.Post {
@@ -120,4 +125,40 @@ func updatePostRequest(post *postservice.Post) *postservice.UpdatePostRequest {
 	return &postservice.UpdatePostRequest{
 		Post: post,
 	}
+}
+
+// makeCreatePostResponse CreatePostメソッドのresponseを生成し返す
+func (s server) makeCreatePostResponse(statusCode string) *postservice.CreatePostResponse {
+	res := &postservice.CreatePostResponse{}
+	if statusCode != "" {
+		responseStatus := &postservice.ResponseStatus{
+			Code: statusCode,
+		}
+		res.Status = responseStatus
+	}
+	return res
+}
+
+// makeUpdatePostResponse UpdatePostメソッドのresponseを生成し返す
+func (s server) makeUpdatePostResponse(statusCode string) *postservice.UpdatePostResponse {
+	res := &postservice.UpdatePostResponse{}
+	if statusCode != "" {
+		responseStatus := &postservice.ResponseStatus{
+			Code: statusCode,
+		}
+		res.Status = responseStatus
+	}
+	return res
+}
+
+// makeDeletePostResponse DeletePostメソッドのresponseを生成し返す
+func (s server) makeDeletePostResponse(statusCode string) *postservice.DeletePostResponse {
+	res := &postservice.DeletePostResponse{}
+	if statusCode != "" {
+		responseStatus := &postservice.ResponseStatus{
+			Code: statusCode,
+		}
+		res.Status = responseStatus
+	}
+	return res
 }

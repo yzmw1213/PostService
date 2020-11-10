@@ -40,21 +40,27 @@ func TestCreatePost(t *testing.T) {
 	client := postservice.NewPostServiceClient(conn)
 
 	createPosts = append(createPosts, &postservice.Post{
+		Title:        "Title",
+		Content:      "Content",
+		MaxNum:       2,
+		Gender:       1,
 		CreateUserId: 111111,
-		Title:        "Title",
-		Content:      "Content",
 	})
 
 	createPosts = append(createPosts, &postservice.Post{
+		Title:        "Title",
+		Content:      "Content",
+		MaxNum:       2,
+		Gender:       1,
 		CreateUserId: 222222,
-		Title:        "Title",
-		Content:      "Content",
 	})
 
 	createPosts = append(createPosts, &postservice.Post{
-		CreateUserId: 333333,
 		Title:        "Title",
 		Content:      "Content",
+		MaxNum:       2,
+		Gender:       1,
+		CreateUserId: 333333,
 	})
 
 	for _, post := range createPosts {
@@ -70,9 +76,11 @@ func TestCreatePost(t *testing.T) {
 // TestCreatepostContentMax Contentが文字数超過の異常系
 func TestCreatepostContentMax(t *testing.T) {
 	var createPost = &postservice.Post{
-		CreateUserId: 555555,
 		Title:        "Title",
 		Content:      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+		MaxNum:       2,
+		Gender:       1,
+		CreateUserId: 555555,
 	}
 	ctx := context.Background()
 	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
@@ -93,7 +101,7 @@ func TestCreatepostContentMax(t *testing.T) {
 	f, d := getErrorDetail(err)
 
 	assert.Equal(t, "Content", f)
-	assert.Equal(t, messageContentMax, d)
+	assert.Equal(t, StatusPostContentStringCount, d)
 }
 
 func getErrorDetail(err error) (string, string) {
@@ -116,9 +124,11 @@ func getErrorDetail(err error) (string, string) {
 // // TestCreatePostContentNull TitleがNullの異常系
 func TestCreatePostContentNull(t *testing.T) {
 	var createPost = &postservice.Post{
-		CreateUserId: 666666,
 		Title:        "Title",
 		Content:      "",
+		MaxNum:       2,
+		Gender:       1,
+		CreateUserId: 666666,
 	}
 	ctx := context.Background()
 	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
@@ -138,6 +148,68 @@ func TestCreatePostContentNull(t *testing.T) {
 	f, d := getErrorDetail(err)
 
 	assert.Equal(t, "Content", f)
-	assert.Equal(t, messageContentMin, d)
+	assert.Equal(t, StatusPostContentStringCount, d)
 
+}
+
+// TestCreatePostTitleMax Titleが文字数超過の異常系
+func TestCreatePostTitleMax(t *testing.T) {
+	var createPost = &postservice.Post{
+		Title:        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+		Content:      "Content",
+		MaxNum:       2,
+		Gender:       1,
+		CreateUserId: 555555,
+	}
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	client := postservice.NewPostServiceClient(conn)
+
+	req := &postservice.CreatePostRequest{
+		Post: createPost,
+	}
+	_, err = client.CreatePost(context.Background(), req)
+
+	assert.NotEqual(t, nil, err)
+
+	f, d := getErrorDetail(err)
+
+	assert.Equal(t, "Title", f)
+	assert.Equal(t, StatusPostTitleStringCount, d)
+}
+
+// TestCreatePostTitleNull Titleが空白の異常系
+func TestCreatePostTitleNull(t *testing.T) {
+	var createPost = &postservice.Post{
+		Title:        "",
+		Content:      "Content",
+		MaxNum:       2,
+		Gender:       1,
+		CreateUserId: 555555,
+	}
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	client := postservice.NewPostServiceClient(conn)
+
+	req := &postservice.CreatePostRequest{
+		Post: createPost,
+	}
+	_, err = client.CreatePost(context.Background(), req)
+
+	assert.NotEqual(t, nil, err)
+
+	f, d := getErrorDetail(err)
+
+	assert.Equal(t, "Title", f)
+	assert.Equal(t, StatusPostTitleStringCount, d)
 }

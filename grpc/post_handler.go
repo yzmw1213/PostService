@@ -17,6 +17,10 @@ const (
 	StatusDeletePostSuccess string = "POST_DELETE_SUCCESS"
 	// StatusPostNotExists 指定した投稿の登録がない時のエラーステータス
 	StatusPostNotExists string = "POST_NOT_EXISTS_ERROR"
+	// StatusTitleStringCount 件名文字数が無効のエラーステータス
+	StatusPostTitleStringCount string = "POST_TITLE_COUNT_ERROR"
+	// StatusTitleStringCount 投稿内容文字数が無効のエラーステータス
+	StatusPostContentStringCount string = "POST_CONTENT_COUNT_ERROR"
 )
 
 func (s server) CreatePost(ctx context.Context, req *postservice.CreatePostRequest) (*postservice.CreatePostResponse, error) {
@@ -97,20 +101,28 @@ func (s server) UpdatePost(ctx context.Context, req *postservice.UpdatePostReque
 
 func makePostModel(gUser *postservice.Post) *model.Post {
 	post := &model.Post{
-		ID:           gUser.GetId(),
+		ID: gUser.GetId(),
+		// Status:       gUser.GetStatus(),
 		Title:        gUser.GetTitle(),
 		Content:      gUser.GetContent(),
+		MaxNum:       gUser.GetMaxNum(),
+		Gender:       gUser.GetGender(),
 		CreateUserID: gUser.GetCreateUserId(),
+		UpdateUserID: gUser.GetUpdateUserId(),
 	}
 	return post
 }
 
 func makeGrpcPost(post *model.Post) *postservice.Post {
 	gPost := &postservice.Post{
-		Id:           post.ID,
+		Id: post.ID,
+		// Status:       post.Status,
 		Title:        post.Title,
 		Content:      post.Content,
+		MaxNum:       post.MaxNum,
+		Gender:       post.Gender,
 		CreateUserId: post.CreateUserID,
+		UpdateUserId: post.UpdateUserID,
 	}
 	return gPost
 }

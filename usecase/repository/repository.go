@@ -15,7 +15,7 @@ type TagRepository interface {
 	Create(*model.Tag) (*model.Tag, error)
 	DeleteByID(uint32) error
 	GetTagByTagName(string) (model.Tag, error)
-	GetValidTag() ([]model.Tag, error)
+	ListValidTag() ([]model.Tag, error)
 	List() ([]model.Tag, error)
 	Update(*model.Tag) (*model.Tag, error)
 }

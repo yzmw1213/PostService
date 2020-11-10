@@ -48,13 +48,11 @@ func TestCreateInvalidTag(t *testing.T) {
 func TestSearchValidTag(t *testing.T) {
 	var i TagInteractor
 
-	searchdTags, err := i.GetValidTag()
+	searchdTags, err := i.ListValidTag()
 
 	assert.Equal(t, nil, err)
 
 	for _, tag := range searchdTags {
-		log.Println("status")
-		log.Println(tag.Status)
 		assert.Equal(t, ValidTagStatus, tag.Status)
 	}
 }

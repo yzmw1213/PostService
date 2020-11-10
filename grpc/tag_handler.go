@@ -71,6 +71,7 @@ func (s server) UpdateTag(ctx context.Context, req *tagservice.UpdateTagRequest)
 	return s.makeUpdateTagResponse(StatusUpdateTagSuccess), nil
 }
 
+// ListTag 全てのタグを取得して返す
 func (s server) ListTag(ctx context.Context, req *tagservice.ListTagRequest) (*tagservice.ListTagResponse, error) {
 	rows, err := s.TagUsecase.List()
 	if err != nil {
@@ -82,6 +83,23 @@ func (s server) ListTag(ctx context.Context, req *tagservice.ListTagRequest) (*t
 		tags = append(tags, tag)
 	}
 	res := &tagservice.ListTagResponse{
+		Tag: tags,
+	}
+	return res, nil
+}
+
+// ListValidTag 公開ステータスが公開のタグを取得して返す
+func (s server) ListValidTag(ctx context.Context, req *tagservice.ListValidTagRequest) (*tagservice.ListValidTagResponse, error) {
+	rows, err := s.TagUsecase.ListAllValidTag()
+	if err != nil {
+		return nil, err
+	}
+	var tags []*tagservice.Tag
+	for _, tag := range rows {
+		tag := makeGrpcTag(&tag)
+		tags = append(tags, tag)
+	}
+	res := &tagservice.ListValidTagResponse{
 		Tag: tags,
 	}
 	return res, nil

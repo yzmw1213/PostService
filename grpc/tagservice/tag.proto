@@ -47,9 +47,17 @@ message ListTagResponse {
   repeated Tag tag=1;
 }
 
+message ListValidTagRequest {
+}
+
+message ListValidTagResponse {
+  repeated Tag tag=1;
+}
+
 service TagService {
   rpc CreateTag(CreateTagRequest) returns (CreateTagResponse);
   rpc DeleteTag(DeleteTagRequest) returns (DeleteTagResponse);
   rpc UpdateTag(UpdateTagRequest) returns (UpdateTagResponse);
   rpc ListTag(ListTagRequest) returns (ListTagResponse);
+  rpc ListValidTag(ListValidTagRequest) returns (ListValidTagResponse);
 }

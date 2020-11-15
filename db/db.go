@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	// gormのmysql接続用
@@ -14,6 +15,8 @@ import (
 var (
 	// DB データベース構造体
 	DB *gorm.DB
+	// tx トランザクション
+	tx *gorm.DB
 	// PostTableName 投稿サービステーブル名
 	PostTableName string = "posts"
 	// TagTableName タグサービステーブル名
@@ -30,7 +33,8 @@ func initDB() {
 	OPTION := "?charset=utf8mb4&parseTime=True&loc=Local"
 	CONNECTION := fmt.Sprintf("%s:%s@%s/%s%s", USER, PASSWORD, PROTOCOL, DBNAME, OPTION)
 
-	DB, err = gorm.Open(DBMS, CONNECTION)
+	_DB, err := gorm.Open(DBMS, CONNECTION)
+	DB = _DB
 	if err != nil {
 		panic(err)
 	}
@@ -53,17 +57,36 @@ func Close() {
 // GetDB DB接続情報を返す
 func GetDB() *gorm.DB {
 	initDB()
+	//
+	if tx != nil {
+		log.Printf("tx is not nil: %v", tx)
+		return tx
+	}
 	return DB
+}
+
+// StartBegin トランザクションを開始する。
+func StartBegin() *gorm.DB {
+	DB = GetDB()
+	tx = DB.Begin()
+	return tx
+}
+
+// EndRollback トランザクションを終了しロールバックする。
+func EndRollback() {
+	tx.Rollback()
+	tx = nil
+}
+
+// EndCommit トランザクションを終了しコミットする。
+func EndCommit() {
+	tx.Commit()
+	tx = nil
 }
 
 func autoMigration() {
 	fmt.Println("migration")
-	err := DB.AutoMigrate(&model.Post{}).Error
-	if err != nil {
-		panic(err)
-	}
-	err = DB.AutoMigrate(&model.Tag{}).Error
-	if err != nil {
-		panic(err)
-	}
+	DB.AutoMigrate(&model.Post{})
+	DB.AutoMigrate(&model.Tag{})
+	DB.AutoMigrate(&model.PostTag{})
 }

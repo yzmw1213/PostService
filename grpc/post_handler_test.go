@@ -68,8 +68,9 @@ func TestCreatePost(t *testing.T) {
 			Post: post,
 		}
 
-		_, err = client.CreatePost(ctx, req)
+		res, err := client.CreatePost(ctx, req)
 		assert.Equal(t, nil, err)
+		assert.Equal(t, StatusCreatePostSuccess, res.GetStatus().GetCode())
 	}
 }
 
@@ -212,4 +213,35 @@ func TestCreatePostTitleNull(t *testing.T) {
 
 	assert.Equal(t, "Title", f)
 	assert.Equal(t, StatusPostTitleStringCount, d)
+}
+
+func TestCreatePostTag(t *testing.T) {
+	// var createPost *postservice.Post
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	client := postservice.NewPostServiceClient(conn)
+
+	createPost := &postservice.Post{
+		Title:        "Title",
+		Content:      "Content",
+		MaxNum:       2,
+		Gender:       1,
+		Tags:         []uint32{one, two, three},
+		CreateUserId: 111111,
+	}
+
+	createPost.Tags = []uint32{one, two}
+
+	req := &postservice.CreatePostRequest{
+		Post: createPost,
+	}
+
+	res, err := client.CreatePost(ctx, req)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, StatusCreatePostSuccess, res.GetStatus().GetCode())
 }

@@ -17,9 +17,9 @@ const (
 	StatusDeletePostSuccess string = "POST_DELETE_SUCCESS"
 	// StatusPostNotExists 指定した投稿の登録がない時のエラーステータス
 	StatusPostNotExists string = "POST_NOT_EXISTS_ERROR"
-	// StatusTitleStringCount 件名文字数が無効のエラーステータス
+	// StatusPostTitleStringCount 件名文字数が無効のエラーステータス
 	StatusPostTitleStringCount string = "POST_TITLE_COUNT_ERROR"
-	// StatusTitleStringCount 投稿内容文字数が無効のエラーステータス
+	// StatusPostContentStringCount 投稿内容文字数が無効のエラーステータス
 	StatusPostContentStringCount string = "POST_CONTENT_COUNT_ERROR"
 )
 
@@ -27,11 +27,19 @@ func (s server) CreatePost(ctx context.Context, req *postservice.CreatePostReque
 	postData := req.GetPost()
 
 	post := makePostModel(postData)
+	tags := makePostTagModel(postData)
 
-	post, err := s.PostUsecase.Create(post)
+	joinPost := &model.JoinPost{
+		Post: post,
+		Tags: tags,
+	}
+
+	// post, tagsをJoinしてinteractor.Createに渡す
+	joinPost, err := s.PostUsecase.Create(joinPost)
 	if err != nil {
 		return nil, err
 	}
+
 	return s.makeCreatePostResponse(StatusCreatePostSuccess), nil
 }
 
@@ -90,27 +98,42 @@ func (s server) ReadPost(ctx context.Context, req *postservice.ReadPostRequest) 
 func (s server) UpdatePost(ctx context.Context, req *postservice.UpdatePostRequest) (*postservice.UpdatePostResponse, error) {
 	postData := req.GetPost()
 
-	post := makePostModel(postData)
-
-	if _, err := s.PostUsecase.Update(post); err != nil {
+	joinPost := &model.JoinPost{
+		Post: makePostModel(postData),
+		Tags: makePostTagModel(postData),
+	}
+	if _, err := s.PostUsecase.Update(joinPost.Post); err != nil {
 		return nil, err
 	}
 
 	return s.makeUpdatePostResponse(StatusUpdatePostSuccess), nil
 }
 
-func makePostModel(gUser *postservice.Post) *model.Post {
+func makePostModel(gPost *postservice.Post) *model.Post {
 	post := &model.Post{
-		ID: gUser.GetId(),
-		// Status:       gUser.GetStatus(),
-		Title:        gUser.GetTitle(),
-		Content:      gUser.GetContent(),
-		MaxNum:       gUser.GetMaxNum(),
-		Gender:       gUser.GetGender(),
-		CreateUserID: gUser.GetCreateUserId(),
-		UpdateUserID: gUser.GetUpdateUserId(),
+		ID: gPost.GetId(),
+		// Status:       gPost.GetStatus(),
+		Title:        gPost.GetTitle(),
+		Content:      gPost.GetContent(),
+		MaxNum:       gPost.GetMaxNum(),
+		Gender:       gPost.GetGender(),
+		CreateUserID: gPost.GetCreateUserId(),
+		UpdateUserID: gPost.GetUpdateUserId(),
 	}
 	return post
+}
+
+func makePostTagModel(gPost *postservice.Post) []model.PostTag {
+	var postTags []model.PostTag
+
+	for _, tagID := range gPost.Tags {
+		postTags = append(postTags, model.PostTag{
+			PostID: gPost.Id,
+			TagID:  tagID,
+		})
+	}
+	log.Println("postTags", postTags)
+	return postTags
 }
 
 func makeGrpcPost(post *model.Post) *postservice.Post {

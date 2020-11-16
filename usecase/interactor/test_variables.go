@@ -7,4 +7,7 @@ var (
 	testTagName           = "テストタグ"
 	testUserID     uint32 = 1
 	zero           uint32 = 0
+	one            uint32 = 1
+	two            uint32 = 2
+	three          uint32 = 3
 )

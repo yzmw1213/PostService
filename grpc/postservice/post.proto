@@ -7,14 +7,14 @@ option go_package = ".;postservice";
 message Post {
   uint32 id = 1;
   // uint32 status = 2;
-  string title=2;
-  string content =3;
-  // uint32 max_num =5;
-  // uint32 gender =6;
+  string title=3;
+  string content =4;
+  uint32 max_num =5;
+  uint32 gender =6;
+  repeated uint32 tags=7;
   // string photo_url =7;
-  // repeated uint32 tags=8;
-  uint32 createUser_id =4;
-  // uint32 updateUser_id =10;
+  uint32 createUser_id =8;
+  uint32 updateUser_id =9;
 }
 
 // レスポンスのステータス
@@ -27,7 +27,7 @@ message CreatePostRequest {
 }
 
 message CreatePostResponse {
-  Post post=1;
+  ResponseStatus status=1;
 }
 
 message ReadPostRequest {
@@ -43,7 +43,7 @@ message UpdatePostRequest {
 }
 
 message UpdatePostResponse {
-  Post post=1;
+  ResponseStatus status=1;
 }
 
 message DeletePostRequest {
@@ -51,7 +51,7 @@ message DeletePostRequest {
 }
 
 message DeletePostResponse {
-  Post post=1;
+  ResponseStatus status=1;
 }
 
 message ListPostRequest {

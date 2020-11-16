@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"testing"
-	"time"
 
 	"github.com/go-playground/assert/v2"
 	"github.com/yzmw1213/PostService/grpc/postservice"
@@ -41,21 +40,27 @@ func TestCreatePost(t *testing.T) {
 	client := postservice.NewPostServiceClient(conn)
 
 	createPosts = append(createPosts, &postservice.Post{
+		Title:        "Title",
+		Content:      "Content",
+		MaxNum:       2,
+		Gender:       1,
 		CreateUserId: 111111,
-		Title:        "Title",
-		Content:      "Content",
 	})
 
 	createPosts = append(createPosts, &postservice.Post{
+		Title:        "Title",
+		Content:      "Content",
+		MaxNum:       2,
+		Gender:       1,
 		CreateUserId: 222222,
-		Title:        "Title",
-		Content:      "Content",
 	})
 
 	createPosts = append(createPosts, &postservice.Post{
-		CreateUserId: 333333,
 		Title:        "Title",
 		Content:      "Content",
+		MaxNum:       2,
+		Gender:       1,
+		CreateUserId: 333333,
 	})
 
 	for _, post := range createPosts {
@@ -63,17 +68,20 @@ func TestCreatePost(t *testing.T) {
 			Post: post,
 		}
 
-		_, err = client.CreatePost(ctx, req)
+		res, err := client.CreatePost(ctx, req)
 		assert.Equal(t, nil, err)
+		assert.Equal(t, StatusCreatePostSuccess, res.GetStatus().GetCode())
 	}
 }
 
 // TestCreatepostContentMax Contentが文字数超過の異常系
 func TestCreatepostContentMax(t *testing.T) {
 	var createPost = &postservice.Post{
-		CreateUserId: 555555,
 		Title:        "Title",
 		Content:      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+		MaxNum:       2,
+		Gender:       1,
+		CreateUserId: 555555,
 	}
 	ctx := context.Background()
 	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
@@ -94,7 +102,7 @@ func TestCreatepostContentMax(t *testing.T) {
 	f, d := getErrorDetail(err)
 
 	assert.Equal(t, "Content", f)
-	assert.Equal(t, messageContentMax, d)
+	assert.Equal(t, StatusPostContentStringCount, d)
 }
 
 func getErrorDetail(err error) (string, string) {
@@ -117,9 +125,11 @@ func getErrorDetail(err error) (string, string) {
 // // TestCreatePostContentNull TitleがNullの異常系
 func TestCreatePostContentNull(t *testing.T) {
 	var createPost = &postservice.Post{
-		CreateUserId: 666666,
 		Title:        "Title",
 		Content:      "",
+		MaxNum:       2,
+		Gender:       1,
+		CreateUserId: 666666,
 	}
 	ctx := context.Background()
 	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
@@ -139,11 +149,74 @@ func TestCreatePostContentNull(t *testing.T) {
 	f, d := getErrorDetail(err)
 
 	assert.Equal(t, "Content", f)
-	assert.Equal(t, messageContentMin, d)
+	assert.Equal(t, StatusPostContentStringCount, d)
 
 }
 
-func TestDeletePost(t *testing.T) {
+// TestCreatePostTitleMax Titleが文字数超過の異常系
+func TestCreatePostTitleMax(t *testing.T) {
+	var createPost = &postservice.Post{
+		Title:        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+		Content:      "Content",
+		MaxNum:       2,
+		Gender:       1,
+		CreateUserId: 555555,
+	}
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	client := postservice.NewPostServiceClient(conn)
+
+	req := &postservice.CreatePostRequest{
+		Post: createPost,
+	}
+	_, err = client.CreatePost(context.Background(), req)
+
+	assert.NotEqual(t, nil, err)
+
+	f, d := getErrorDetail(err)
+
+	assert.Equal(t, "Title", f)
+	assert.Equal(t, StatusPostTitleStringCount, d)
+}
+
+// TestCreatePostTitleNull Titleが空白の異常系
+func TestCreatePostTitleNull(t *testing.T) {
+	var createPost = &postservice.Post{
+		Title:        "",
+		Content:      "Content",
+		MaxNum:       2,
+		Gender:       1,
+		CreateUserId: 555555,
+	}
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer conn.Close()
+
+	client := postservice.NewPostServiceClient(conn)
+
+	req := &postservice.CreatePostRequest{
+		Post: createPost,
+	}
+	_, err = client.CreatePost(context.Background(), req)
+
+	assert.NotEqual(t, nil, err)
+
+	f, d := getErrorDetail(err)
+
+	assert.Equal(t, "Title", f)
+	assert.Equal(t, StatusPostTitleStringCount, d)
+}
+
+func TestCreatePostTag(t *testing.T) {
+	// var createPost *postservice.Post
 	ctx := context.Background()
 	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
 	if err != nil {
@@ -154,80 +227,21 @@ func TestDeletePost(t *testing.T) {
 	client := postservice.NewPostServiceClient(conn)
 
 	createPost := &postservice.Post{
-		CreateUserId: 444444,
 		Title:        "Title",
-		Content:      "Content of the fourth post",
+		Content:      "Content",
+		MaxNum:       2,
+		Gender:       1,
+		Tags:         []uint32{one, two, three},
+		CreateUserId: 111111,
 	}
 
-	createReq := &postservice.CreatePostRequest{
+	createPost.Tags = []uint32{one, two}
+
+	req := &postservice.CreatePostRequest{
 		Post: createPost,
 	}
 
-	createRes, err := client.CreatePost(ctx, createReq)
-
-	deletePostID := createRes.GetPost().GetId()
-
-	deleteReq := &postservice.DeletePostRequest{
-		Id: deletePostID,
-	}
-
-	_, err = client.DeletePost(ctx, deleteReq)
+	res, err := client.CreatePost(ctx, req)
 	assert.Equal(t, nil, err)
-
-	readReq := &postservice.ReadPostRequest{
-		Id: deletePostID,
-	}
-
-	readRes, err := client.ReadPost(ctx, readReq)
-	assert.NotEqual(t, nil, err)
-
-	_, d := getErrorDetail(err)
-
-	assert.Equal(t, zero, readRes.GetPost().GetId())
-	assert.Equal(t, "", readRes.GetPost().GetContent())
-	assert.Equal(t, zero, readRes.GetPost().GetCreateUserId())
-	assert.Equal(t, "record not found", d)
-
-}
-
-func TestUpdatePost(t *testing.T) {
-	ctx := context.Background()
-	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer conn.Close()
-
-	createPost := &postservice.Post{
-		CreateUserId: 555555,
-		Title:        "Title",
-		Content:      "Content",
-	}
-
-	client := postservice.NewPostServiceClient(conn)
-
-	createReq := createPostRequest(createPost)
-
-	res, err := client.CreatePost(ctx, createReq)
-
-	updatePost := res.GetPost()
-	updatePost.Content = "Content updated"
-	time.Sleep(time.Second * 10)
-
-	req := updatePostRequest(updatePost)
-	updateRes, err := client.UpdatePost(ctx, req)
-
-	assert.Equal(t, nil, err)
-
-	updatePost = updateRes.GetPost()
-
-	readReq := &postservice.ReadPostRequest{
-		Id: updatePost.Id,
-	}
-
-	readRes, err := client.ReadPost(context.Background(), readReq)
-	assert.Equal(t, nil, err)
-	assert.Equal(t, readRes.Post.Id, updatePost.Id)
-	assert.Equal(t, updatePost.Content, readRes.Post.Content)
-
+	assert.Equal(t, StatusCreatePostSuccess, res.GetStatus().GetCode())
 }

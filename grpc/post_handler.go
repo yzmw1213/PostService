@@ -30,8 +30,8 @@ func (s server) CreatePost(ctx context.Context, req *postservice.CreatePostReque
 	tags := makePostTagModel(postData)
 
 	joinPost := &model.JoinPost{
-		Post: post,
-		Tags: tags,
+		Post:     post,
+		PostTags: tags,
 	}
 
 	// post, tagsをJoinしてinteractor.Createに渡す
@@ -46,11 +46,7 @@ func (s server) CreatePost(ctx context.Context, req *postservice.CreatePostReque
 func (s server) DeletePost(ctx context.Context, req *postservice.DeletePostRequest) (*postservice.DeletePostResponse, error) {
 	id := req.GetId()
 
-	// 既に投稿が削除されていないかチェックする
-	post := &model.Post{
-		ID: id,
-	}
-	if err := s.PostUsecase.Delete(post); err != nil {
+	if err := s.PostUsecase.DeleteByID(id); err != nil {
 		return nil, err
 	}
 	return s.makeDeletePostResponse(StatusDeletePostSuccess), nil
@@ -80,7 +76,7 @@ func (s server) ListPost(req *postservice.ListPostRequest, stream postservice.Po
 
 func (s server) ReadPost(ctx context.Context, req *postservice.ReadPostRequest) (*postservice.ReadPostResponse, error) {
 	ID := req.GetId()
-	row, err := s.PostUsecase.Read(ID)
+	row, err := s.PostUsecase.GetByID(ID)
 	if err != nil {
 		return nil, err
 	}
@@ -99,8 +95,8 @@ func (s server) UpdatePost(ctx context.Context, req *postservice.UpdatePostReque
 	postData := req.GetPost()
 
 	joinPost := &model.JoinPost{
-		Post: makePostModel(postData),
-		Tags: makePostTagModel(postData),
+		Post:     makePostModel(postData),
+		PostTags: makePostTagModel(postData),
 	}
 	if _, err := s.PostUsecase.Update(joinPost.Post); err != nil {
 		return nil, err

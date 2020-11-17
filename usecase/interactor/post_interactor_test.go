@@ -1,6 +1,7 @@
 package interactor
 
 import (
+	"log"
 	"testing"
 
 	"github.com/go-playground/assert/v2"
@@ -16,7 +17,7 @@ var DemoPost = model.Post{
 	CreateUserID: testPostUserID,
 }
 
-var DemoPostTag = []model.PostTag{
+var DemoPostTags = []model.PostTag{
 	{
 		TagID: one,
 	},
@@ -43,11 +44,15 @@ func TestCreate(t *testing.T) {
 	initTable()
 	var i PostInteractor
 	post := &DemoPost
+
 	//
 	joinPost := &model.JoinPost{
-		Post: &DemoPost,
-		Tags: DemoPostTag,
+		Post:     &DemoPost,
+		PostTags: DemoPostTags,
 	}
+
+	// 登録前のpostTag登録数
+	beforePostTagCount := countPostTag()
 	createdPost, err := i.Create(joinPost)
 
 	assert.Equal(t, nil, err)
@@ -55,21 +60,28 @@ func TestCreate(t *testing.T) {
 	assert.Equal(t, post.Content, createdPost.Post.Content)
 	assert.NotEqual(t, 0, createdPost.Post.ID)
 
-	// Insertされた各PostTagのPostIDが投稿のIDと等しい事を確認
-	// postTags := createdPost.Tags
-	// for _, postTag := range postTags {
-	// 	assert.Equal(t, createdPost.Post.ID, postTag.PostID)
-	// }
+	// 登録後のpostTag登録数
+	afterPostTagCount := countPostTag()
+
+	// Postと同一PostIDのPostTagが登録されている事を確認
+	postID := createdPost.Post.ID
+	postTags, err := listPostTagsByID(postID)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 3, len(postTags))
+	assert.NotEqual(t, beforePostTagCount, afterPostTagCount)
 }
 
 func TestCreateContentNull(t *testing.T) {
 	var i PostInteractor
 	joinPost := &model.JoinPost{
-		Post: &DemoPostContentNull,
-		Tags: DemoPostTag,
+		Post:     &DemoPostContentNull,
+		PostTags: DemoPostTags,
 	}
+	beforePostTagCount := countPostTag()
 	_, err := i.Create(joinPost)
 	// PostTagがInsertされていない事をテスト
+	afterPostTagCount := countPostTag()
+	assert.Equal(t, beforePostTagCount, afterPostTagCount)
 
 	assert.NotEqual(t, nil, err)
 }
@@ -77,12 +89,15 @@ func TestCreateContentNull(t *testing.T) {
 func TestCreateContentTooLong(t *testing.T) {
 	var i PostInteractor
 	joinPost := &model.JoinPost{
-		Post: &model.Post{CreateUserID: testPostUserID, Title: testTitle, Content: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
-		Tags: DemoPostTag,
+		Post:     &model.Post{CreateUserID: testPostUserID, Title: testTitle, Content: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"},
+		PostTags: DemoPostTags,
 	}
+	beforePostTagCount := countPostTag()
 
 	_, err := i.Create(joinPost)
+	afterPostTagCount := countPostTag()
 
+	assert.Equal(t, beforePostTagCount, afterPostTagCount)
 	assert.NotEqual(t, nil, err)
 }
 
@@ -96,12 +111,15 @@ func TestCreateTitleNull(t *testing.T) {
 			Gender:       two,
 			CreateUserID: testUserID,
 		},
-		Tags: DemoPostTag,
+		PostTags: DemoPostTags,
 	}
+	beforePostTagCount := countPostTag()
 
 	_, err := i.Create(joinPost)
+	afterPostTagCount := countPostTag()
 
 	assert.NotEqual(t, nil, err)
+	assert.Equal(t, beforePostTagCount, afterPostTagCount)
 }
 
 func TestCreateTitleTooLong(t *testing.T) {
@@ -114,37 +132,50 @@ func TestCreateTitleTooLong(t *testing.T) {
 			Gender:       two,
 			CreateUserID: testUserID,
 		},
-		Tags: DemoPostTag,
+		PostTags: DemoPostTags,
 	}
+	beforePostTagCount := countPostTag()
+
 	_, err := i.Create(joinPost)
+	afterPostTagCount := countPostTag()
 
 	assert.NotEqual(t, nil, err)
+	assert.Equal(t, beforePostTagCount, afterPostTagCount)
 }
 
 func TestDelete(t *testing.T) {
 	var i PostInteractor
+	log.Println("DemoPost", DemoPost)
+	DemoPost.ID = zero
 	joinPost := &model.JoinPost{
-		Post: &model.Post{
-			Title:        testTitle,
-			Content:      testContent,
-			MaxNum:       two,
-			Gender:       two,
-			CreateUserID: testPostUserID,
-		},
+		Post:     &DemoPost,
+		PostTags: DemoPostTags,
 	}
+
 	cretedPost, err := i.Create(joinPost)
 
 	assert.Equal(t, nil, err)
-	err = i.Delete(cretedPost.Post)
+	postID := cretedPost.Post.ID
+	beforePostTagCount := countPostTag()
+
+	err = i.DeleteByID(postID)
 	assert.Equal(t, nil, err)
 
-	deletedPost, err := i.Read(cretedPost.Post.ID)
+	log.Println("created PostID", postID)
+
+	deletedPost, err := i.GetByID(postID)
 	assert.NotEqual(t, nil, err)
 	assert.Equal(t, zero, deletedPost.ID)
 	assert.Equal(t, zero, deletedPost.CreateUserID)
 	assert.Equal(t, "", deletedPost.Title)
 	assert.Equal(t, "", deletedPost.Content)
 
+	// Postと同一IDのPostTagが全て削除されている事を確認
+	postTags, err := listPostTagsByID(postID)
+	afterPostTagCount := countPostTag()
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 0, len(postTags))
+	assert.NotEqual(t, beforePostTagCount, afterPostTagCount)
 }
 
 // func TestUpdate(t *testing.T) {

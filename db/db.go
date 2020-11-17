@@ -2,7 +2,6 @@ package db
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	// gormのmysql接続用
@@ -59,7 +58,6 @@ func GetDB() *gorm.DB {
 	initDB()
 	//
 	if tx != nil {
-		log.Printf("tx is not nil: %v", tx)
 		return tx
 	}
 	return DB

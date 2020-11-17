@@ -5,7 +5,8 @@ import "github.com/yzmw1213/PostService/domain/model"
 // PostRepository 投稿サービスの抽象定義
 type PostRepository interface {
 	Create(*model.JoinPost) (*model.JoinPost, error)
-	Delete(*model.Post) error
+	GetByID(id uint32) (model.Post, error)
+	DeleteByID(id uint32) error
 	List() ([]model.Post, error)
 	Update(*model.Post) (*model.Post, error)
 }

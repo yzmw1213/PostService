@@ -98,7 +98,7 @@ func (s server) UpdatePost(ctx context.Context, req *postservice.UpdatePostReque
 		Post:     makePostModel(postData),
 		PostTags: makePostTagModel(postData),
 	}
-	if _, err := s.PostUsecase.Update(joinPost.Post); err != nil {
+	if _, err := s.PostUsecase.Update(joinPost); err != nil {
 		return nil, err
 	}
 

@@ -79,6 +79,8 @@ func (b *PostInteractor) DeleteByID(id uint32) error {
 		db.EndRollback()
 		return err
 	}
+	// トランザクションを終了しコミット
+	db.EndCommit()
 	return nil
 }
 
@@ -115,17 +117,38 @@ func listAll(ctx context.Context) ([]model.Post, error) {
 }
 
 // Update 投稿を更新する
-func (b *PostInteractor) Update(postData *model.Post) (*model.Post, error) {
-	DB := db.GetDB()
+func (b *PostInteractor) Update(postData *model.JoinPost) (*model.JoinPost, error) {
+	validate = validator.New()
+	post := postData.Post
+	tags := postData.PostTags
 
 	// Post構造体のバリデーション
-	if err := validate.Struct(postData); err != nil {
-		return postData, err
-	}
-	if err := DB.Model(&post).Update(&postData).Error; err != nil {
+	if err := validate.Struct(post); err != nil {
 		return postData, err
 	}
 
+	// トランザクション開始
+	tx := db.StartBegin()
+
+	if err := tx.Model(&post).Update(&postData.Post).Error; err != nil {
+		db.EndRollback()
+		return postData, err
+	}
+
+	// 投稿とタグ紐付け情報を全て削除
+	deletePostTagByPostID(post.ID)
+
+	postID := post.ID
+	// 投稿とタグ紐付け情報登録
+	for _, tag := range tags {
+		tag.PostID = postID
+		if err := tx.Create(tag).Error; err != nil {
+			db.EndRollback()
+			return postData, err
+		}
+	}
+	// トランザクションを終了しコミット
+	db.EndCommit()
 	return postData, nil
 }
 
@@ -165,4 +188,17 @@ func countPostTag() int {
 	DB := db.GetDB()
 	DB.Model(&postTag).Count(&count)
 	return count
+}
+
+func countPostTagByPostID(ID uint32) int {
+	var count int
+	DB := db.GetDB()
+	DB.Where("post_id = ?", ID).Model(&postTag).Count(&count)
+
+	return count
+}
+
+func deletePostTagByPostID(ID uint32) {
+	DB := db.GetDB()
+	DB.Where("post_id = ?", ID).Delete(&postTags)
 }

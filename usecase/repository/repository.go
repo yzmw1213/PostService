@@ -8,7 +8,7 @@ type PostRepository interface {
 	GetByID(id uint32) (model.Post, error)
 	DeleteByID(id uint32) error
 	List() ([]model.Post, error)
-	Update(*model.Post) (*model.Post, error)
+	Update(*model.JoinPost) (*model.JoinPost, error)
 }
 
 // TagRepository タグサービスの抽象定義

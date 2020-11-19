@@ -3,6 +3,7 @@ package interactor
 import (
 	"log"
 	"testing"
+	"time"
 
 	"github.com/go-playground/assert/v2"
 	"github.com/yzmw1213/PostService/db"
@@ -18,18 +19,6 @@ var DemoPost = model.Post{
 }
 
 var DemoPostTag = model.PostTag{}
-
-var DemoPostTags = []model.PostTag{
-	{
-		TagID: one,
-	},
-	{
-		TagID: two,
-	},
-	{
-		TagID: three,
-	},
-}
 
 var DemoPostContentNull = model.Post{
 	Title:        testTitle,
@@ -163,65 +152,55 @@ func TestDelete(t *testing.T) {
 	assert.NotEqual(t, beforePostTagCount, afterPostTagCount)
 }
 
-// func TestUpdate(t *testing.T) {
-// 	var i PostInteractor
-// 	post := &model.Post{
-// 		Title:        testTitle,
-// 		Content:      testContent,
-// 		MaxNum:       two,
-// 		Gender:       two,
-// 		CreateUserID: testUserID,
-// 	}
-// 	createdPost, err := i.Create(post)
+func TestUpdatePost(t *testing.T) {
+	var i PostInteractor
+	post := makePost(testTitle, testContent, two, two)
+	joinPost := createDemoJoinPost(post, nil)
+	createdJoinPost, err := i.Create(&joinPost)
 
-// 	assert.Equal(t, nil, err)
-// 	createdAt := createdPost.CreatedAt
-// 	updatePost := createdPost
-// 	updatePost.Content = "Content updated"
-// 	updatePost.UpdateUserID = 12345
+	assert.Equal(t, nil, err)
+	updateJoinPost := createdJoinPost
+	updateJoinPost.Post.Content = "Content updated"
+	updateJoinPost.Post.UpdateUserID = 12345
 
-// 	time.Sleep(time.Second * 10)
-// 	updatedPost, err := i.Update(updatePost)
+	time.Sleep(time.Second * 3)
+	updatedJoinPost, err := i.Update(updateJoinPost)
+	updatedPost := updatedJoinPost.Post
 
-// 	assert.Equal(t, nil, err)
-// 	readPost, err := i.Read(updatePost.ID)
-// 	assert.Equal(t, nil, err)
-// 	assert.NotEqual(t, "content", updatedPost.Content)
-// 	assert.Equal(t, createdPost.ID, updatedPost.ID)
-// 	assert.Equal(t, createdPost.CreateUserID, updatedPost.CreateUserID)
-// 	assert.Equal(t, createdAt, updatedPost.CreatedAt)
-// 	assert.NotEqual(t, readPost.UpdatedAt, updatedPost.UpdatedAt)
-// 	assert.NotEqual(t, testUserID, updatedPost.UpdateUserID)
+	assert.Equal(t, nil, err)
+	readPost, err := i.GetByID(updatedJoinPost.Post.ID)
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, "content", updatedPost.Content)
+	assert.Equal(t, createdJoinPost.Post.ID, updatedPost.ID)
+	assert.Equal(t, createdJoinPost.Post.CreateUserID, updatedPost.CreateUserID)
+	assert.Equal(t, createdJoinPost.Post.CreatedAt, updatedPost.CreatedAt)
+	assert.NotEqual(t, readPost.UpdatedAt, updatedPost.UpdatedAt)
+	assert.NotEqual(t, testPostUserID, updatedPost.UpdateUserID)
 
-// }
+}
 
-// func TestUpdate(t *testing.T) {
-// 	var i PostInteractor
-// 	post := makePost(testTitle, testContent, two, two)
-// 	postTags := makePostTags()
-// 	joinPost := createDemoJoinPost(post, postTags)
-// 	createdJoinPost, err := i.Create(&joinPost)
+func TestUpdatePostTag(t *testing.T) {
+	var i PostInteractor
+	post := makePost(testTitle, testContent, two, two)
+	postTags := makePostTags()
+	joinPost := createDemoJoinPost(post, postTags)
 
-// 	assert.Equal(t, nil, err)
-// 	createdAt := createdJoinPost.Post.CreatedAt
-// 	updateJoinPost := createdJoinPost
-// 	updateJoinPost.Post.Content = "Content updated"
-// 	updateJoinPost.Post.UpdateUserID = 12345
+	createdPost, err := i.Create(&joinPost)
+	assert.Equal(t, nil, err)
+	postID := createdPost.Post.ID
+	beforePostTagCount := countPostTagByPostID(postID)
 
-// 	time.Sleep(time.Second * 3)
-// 	updatedPost, err := i.Update(&updateJoinPost)
+	updatePostTags := makePostTags()
+	updatePostTags = append(updatePostTags, model.PostTag{PostID: postID, TagID: four})
 
-// 	assert.Equal(t, nil, err)
-// 	readPost, err := i.Read(updatePost.ID)
-// 	assert.Equal(t, nil, err)
-// 	assert.NotEqual(t, "content", updatedPost.Content)
-// 	assert.Equal(t, createdPost.ID, updatedPost.ID)
-// 	assert.Equal(t, createdPost.CreateUserID, updatedPost.CreateUserID)
-// 	assert.Equal(t, createdAt, updatedPost.CreatedAt)
-// 	assert.NotEqual(t, readPost.UpdatedAt, updatedPost.UpdatedAt)
-// 	assert.NotEqual(t, testUserID, updatedPost.UpdateUserID)
+	joinPost.PostTags = updatePostTags
 
-// }
+	_, err = i.Update(&joinPost)
+
+	afterPostTagCount := countPostTagByPostID(postID)
+
+	assert.Equal(t, beforePostTagCount+1, afterPostTagCount)
+}
 
 func createDemoJoinPost(post model.Post, postTags []model.PostTag) model.JoinPost {
 	joinPost := model.JoinPost{

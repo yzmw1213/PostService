@@ -6,6 +6,7 @@ import "github.com/yzmw1213/PostService/domain/model"
 type PostRepository interface {
 	Create(*model.JoinPost) (*model.JoinPost, error)
 	GetByID(id uint32) (model.Post, error)
+	GetJoinPostByID(id uint32) (model.JoinPost, error)
 	DeleteByID(id uint32) error
 	List() ([]model.Post, error)
 	Update(*model.JoinPost) (*model.JoinPost, error)

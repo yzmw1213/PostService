@@ -601,7 +601,7 @@ type ListPostResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Post *Post `protobuf:"bytes,1,opt,name=post,proto3" json:"post,omitempty"`
+	Post []*Post `protobuf:"bytes,1,rep,name=post,proto3" json:"post,omitempty"`
 }
 
 func (x *ListPostResponse) Reset() {
@@ -636,7 +636,7 @@ func (*ListPostResponse) Descriptor() ([]byte, []int) {
 	return file_post_proto_rawDescGZIP(), []int{11}
 }
 
-func (x *ListPostResponse) GetPost() *Post {
+func (x *ListPostResponse) GetPost() []*Post {
 	if x != nil {
 		return x.Post
 	}
@@ -696,9 +696,9 @@ var file_post_proto_rawDesc = []byte{
 	0x74, 0x75, 0x73, 0x22, 0x11, 0x0a, 0x0f, 0x4c, 0x69, 0x73, 0x74, 0x50, 0x6f, 0x73, 0x74, 0x52,
 	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x39, 0x0a, 0x10, 0x4c, 0x69, 0x73, 0x74, 0x50, 0x6f,
 	0x73, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x25, 0x0a, 0x04, 0x70, 0x6f,
-	0x73, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x11, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x73,
+	0x73, 0x74, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x11, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x73,
 	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x50, 0x6f, 0x73, 0x74, 0x52, 0x04, 0x70, 0x6f, 0x73,
-	0x74, 0x32, 0x8e, 0x03, 0x0a, 0x0b, 0x50, 0x6f, 0x73, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63,
+	0x74, 0x32, 0x8c, 0x03, 0x0a, 0x0b, 0x50, 0x6f, 0x73, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63,
 	0x65, 0x12, 0x4d, 0x0a, 0x0a, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x50, 0x6f, 0x73, 0x74, 0x12,
 	0x1e, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x43, 0x72,
 	0x65, 0x61, 0x74, 0x65, 0x50, 0x6f, 0x73, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
@@ -718,13 +718,13 @@ var file_post_proto_rawDesc = []byte{
 	0x76, 0x69, 0x63, 0x65, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x50, 0x6f, 0x73, 0x74, 0x52,
 	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1f, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x73, 0x65, 0x72,
 	0x76, 0x69, 0x63, 0x65, 0x2e, 0x44, 0x65, 0x6c, 0x65, 0x74, 0x65, 0x50, 0x6f, 0x73, 0x74, 0x52,
-	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x49, 0x0a, 0x08, 0x4c, 0x69, 0x73, 0x74, 0x50,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x47, 0x0a, 0x08, 0x4c, 0x69, 0x73, 0x74, 0x50,
 	0x6f, 0x73, 0x74, 0x12, 0x1c, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63,
 	0x65, 0x2e, 0x4c, 0x69, 0x73, 0x74, 0x50, 0x6f, 0x73, 0x74, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
 	0x74, 0x1a, 0x1d, 0x2e, 0x70, 0x6f, 0x73, 0x74, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e,
 	0x4c, 0x69, 0x73, 0x74, 0x50, 0x6f, 0x73, 0x74, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x30, 0x01, 0x42, 0x0f, 0x5a, 0x0d, 0x2e, 0x3b, 0x70, 0x6f, 0x73, 0x74, 0x73, 0x65, 0x72, 0x76,
-	0x69, 0x63, 0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x42, 0x0f, 0x5a, 0x0d, 0x2e, 0x3b, 0x70, 0x6f, 0x73, 0x74, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63,
+	0x65, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -966,7 +966,7 @@ type PostServiceClient interface {
 	ReadPost(ctx context.Context, in *ReadPostRequest, opts ...grpc.CallOption) (*ReadPostResponse, error)
 	UpdatePost(ctx context.Context, in *UpdatePostRequest, opts ...grpc.CallOption) (*UpdatePostResponse, error)
 	DeletePost(ctx context.Context, in *DeletePostRequest, opts ...grpc.CallOption) (*DeletePostResponse, error)
-	ListPost(ctx context.Context, in *ListPostRequest, opts ...grpc.CallOption) (PostService_ListPostClient, error)
+	ListPost(ctx context.Context, in *ListPostRequest, opts ...grpc.CallOption) (*ListPostResponse, error)
 }
 
 type postServiceClient struct {
@@ -1013,36 +1013,13 @@ func (c *postServiceClient) DeletePost(ctx context.Context, in *DeletePostReques
 	return out, nil
 }
 
-func (c *postServiceClient) ListPost(ctx context.Context, in *ListPostRequest, opts ...grpc.CallOption) (PostService_ListPostClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_PostService_serviceDesc.Streams[0], "/postservice.PostService/ListPost", opts...)
+func (c *postServiceClient) ListPost(ctx context.Context, in *ListPostRequest, opts ...grpc.CallOption) (*ListPostResponse, error) {
+	out := new(ListPostResponse)
+	err := c.cc.Invoke(ctx, "/postservice.PostService/ListPost", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &postServiceListPostClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type PostService_ListPostClient interface {
-	Recv() (*ListPostResponse, error)
-	grpc.ClientStream
-}
-
-type postServiceListPostClient struct {
-	grpc.ClientStream
-}
-
-func (x *postServiceListPostClient) Recv() (*ListPostResponse, error) {
-	m := new(ListPostResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 // PostServiceServer is the server API for PostService service.
@@ -1051,7 +1028,7 @@ type PostServiceServer interface {
 	ReadPost(context.Context, *ReadPostRequest) (*ReadPostResponse, error)
 	UpdatePost(context.Context, *UpdatePostRequest) (*UpdatePostResponse, error)
 	DeletePost(context.Context, *DeletePostRequest) (*DeletePostResponse, error)
-	ListPost(*ListPostRequest, PostService_ListPostServer) error
+	ListPost(context.Context, *ListPostRequest) (*ListPostResponse, error)
 }
 
 // UnimplementedPostServiceServer can be embedded to have forward compatible implementations.
@@ -1070,8 +1047,8 @@ func (*UnimplementedPostServiceServer) UpdatePost(context.Context, *UpdatePostRe
 func (*UnimplementedPostServiceServer) DeletePost(context.Context, *DeletePostRequest) (*DeletePostResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeletePost not implemented")
 }
-func (*UnimplementedPostServiceServer) ListPost(*ListPostRequest, PostService_ListPostServer) error {
-	return status.Errorf(codes.Unimplemented, "method ListPost not implemented")
+func (*UnimplementedPostServiceServer) ListPost(context.Context, *ListPostRequest) (*ListPostResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListPost not implemented")
 }
 
 func RegisterPostServiceServer(s *grpc.Server, srv PostServiceServer) {
@@ -1150,25 +1127,22 @@ func _PostService_DeletePost_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _PostService_ListPost_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(ListPostRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
+func _PostService_ListPost_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListPostRequest)
+	if err := dec(in); err != nil {
+		return nil, err
 	}
-	return srv.(PostServiceServer).ListPost(m, &postServiceListPostServer{stream})
-}
-
-type PostService_ListPostServer interface {
-	Send(*ListPostResponse) error
-	grpc.ServerStream
-}
-
-type postServiceListPostServer struct {
-	grpc.ServerStream
-}
-
-func (x *postServiceListPostServer) Send(m *ListPostResponse) error {
-	return x.ServerStream.SendMsg(m)
+	if interceptor == nil {
+		return srv.(PostServiceServer).ListPost(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/postservice.PostService/ListPost",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PostServiceServer).ListPost(ctx, req.(*ListPostRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 var _PostService_serviceDesc = grpc.ServiceDesc{
@@ -1191,13 +1165,11 @@ var _PostService_serviceDesc = grpc.ServiceDesc{
 			MethodName: "DeletePost",
 			Handler:    _PostService_DeletePost_Handler,
 		},
-	},
-	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "ListPost",
-			Handler:       _PostService_ListPost_Handler,
-			ServerStreams: true,
+			MethodName: "ListPost",
+			Handler:    _PostService_ListPost_Handler,
 		},
 	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "post.proto",
 }

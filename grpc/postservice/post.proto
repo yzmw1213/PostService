@@ -58,7 +58,7 @@ message ListPostRequest {
 }
 
 message ListPostResponse {
-  Post post=1;
+  repeated Post post=1;
 }
 
 service PostService {
@@ -66,5 +66,5 @@ service PostService {
   rpc ReadPost(ReadPostRequest) returns (ReadPostResponse);
   rpc UpdatePost(UpdatePostRequest) returns (UpdatePostResponse);
   rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
-  rpc ListPost(ListPostRequest) returns (stream ListPostResponse);
+  rpc ListPost(ListPostRequest) returns (ListPostResponse);
 }

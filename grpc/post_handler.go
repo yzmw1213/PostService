@@ -52,26 +52,20 @@ func (s server) DeletePost(ctx context.Context, req *postservice.DeletePostReque
 	return s.makeDeletePostResponse(StatusDeletePostSuccess), nil
 }
 
-func (s server) ListPost(req *postservice.ListPostRequest, stream postservice.PostService_ListPostServer) error {
+func (s server) ListPost(ctx context.Context, req *postservice.ListPostRequest) (*postservice.ListPostResponse, error) {
 	rows, err := s.PostUsecase.List()
 	if err != nil {
-		return err
+		return nil, err
 	}
+	var posts []*postservice.Post
 	for _, post := range rows {
-		post := &postservice.Post{
-			Id: post.ID,
-		}
-		res := &postservice.ListPostResponse{
-			Post: post,
-		}
-		sendErr := stream.Send(res)
-		if sendErr != nil {
-			log.Fatalf("Error while sending response to client :%v", sendErr)
-			return sendErr
-		}
+		post := makeGrpcPost(&post)
+		posts = append(posts, post)
 	}
-
-	return nil
+	res := &postservice.ListPostResponse{
+		Post: posts,
+	}
+	return res, nil
 }
 
 func (s server) ReadPost(ctx context.Context, req *postservice.ReadPostRequest) (*postservice.ReadPostResponse, error) {

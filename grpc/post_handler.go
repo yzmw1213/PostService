@@ -76,15 +76,11 @@ func (s server) ListPost(req *postservice.ListPostRequest, stream postservice.Po
 
 func (s server) ReadPost(ctx context.Context, req *postservice.ReadPostRequest) (*postservice.ReadPostResponse, error) {
 	ID := req.GetId()
-	row, err := s.PostUsecase.GetByID(ID)
+	row, err := s.PostUsecase.GetJoinPostByID(ID)
 	if err != nil {
 		return nil, err
 	}
-	post := &postservice.Post{
-		Id:           row.ID,
-		CreateUserId: row.CreateUserID,
-		Content:      row.Content,
-	}
+	post := makeGrpcPost(&row)
 	res := &postservice.ReadPostResponse{
 		Post: post,
 	}
@@ -132,17 +128,23 @@ func makePostTagModel(gPost *postservice.Post) []model.PostTag {
 	return postTags
 }
 
-func makeGrpcPost(post *model.Post) *postservice.Post {
+func makeGrpcPost(post *model.JoinPost) *postservice.Post {
+	var tags []uint32
 	gPost := &postservice.Post{
-		Id: post.ID,
+		Id: post.Post.ID,
 		// Status:       post.Status,
-		Title:        post.Title,
-		Content:      post.Content,
-		MaxNum:       post.MaxNum,
-		Gender:       post.Gender,
-		CreateUserId: post.CreateUserID,
-		UpdateUserId: post.UpdateUserID,
+		Title:        post.Post.Title,
+		Content:      post.Post.Content,
+		MaxNum:       post.Post.MaxNum,
+		Gender:       post.Post.Gender,
+		CreateUserId: post.Post.CreateUserID,
+		UpdateUserId: post.Post.UpdateUserID,
 	}
+
+	for _, postTag := range post.PostTags {
+		tags = append(tags, postTag.TagID)
+	}
+	gPost.Tags = tags
 	return gPost
 }
 

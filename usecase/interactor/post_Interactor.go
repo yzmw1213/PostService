@@ -164,7 +164,21 @@ func (b *PostInteractor) GetByID(ID uint32) (model.Post, error) {
 	return post, nil
 }
 
-// attachJoinData 投稿物の
+// GetJoinPostByID IDを元に投稿、紐付け情報を1件取得する
+func (b *PostInteractor) GetJoinPostByID(ID uint32) (model.JoinPost, error) {
+	post, err := b.GetByID(ID)
+	// 投稿に紐づくタグを取得
+	postTags, err := listPostTagsByID(ID)
+
+	if err != nil {
+		log.Printf("Error happend while Read for ID: %v\n", ID)
+		return model.JoinPost{}, err
+	}
+
+	joinPost := createJoinPost(post, postTags)
+
+	return joinPost, nil
+}
 
 // listPostTagsByID PostIDを元にpostTagを検索し返す
 func listPostTagsByID(ID uint32) ([]model.PostTag, error) {
@@ -181,6 +195,14 @@ func listPostTagsByID(ID uint32) ([]model.PostTag, error) {
 	}
 
 	return postTagList, nil
+}
+
+func createJoinPost(post model.Post, postTags []model.PostTag) model.JoinPost {
+	joinPost := model.JoinPost{
+		Post:     &post,
+		PostTags: postTags,
+	}
+	return joinPost
 }
 
 func countPostTag() int {

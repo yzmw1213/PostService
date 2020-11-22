@@ -38,7 +38,7 @@ func TestCreate(t *testing.T) {
 	postTags := makePostTags()
 
 	//
-	joinPost := createJoinPost(post, postTags)
+	joinPost := makeJoinPost(post, postTags)
 
 	// 登録前のpostTag登録数
 	beforePostTagCount := countPostTag()
@@ -64,7 +64,7 @@ func TestCreateContentNull(t *testing.T) {
 	var i PostInteractor
 	post := makePost(testTitle, "", two, two)
 	postTags := makePostTags()
-	joinPost := createJoinPost(post, postTags)
+	joinPost := makeJoinPost(post, postTags)
 
 	beforePostTagCount := countPostTag()
 	_, err := i.Create(&joinPost)
@@ -79,7 +79,7 @@ func TestCreateContentTooLong(t *testing.T) {
 	var i PostInteractor
 	post := makePost(testTitle, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", two, two)
 	postTags := makePostTags()
-	joinPost := createJoinPost(post, postTags)
+	joinPost := makeJoinPost(post, postTags)
 
 	beforePostTagCount := countPostTag()
 
@@ -94,7 +94,7 @@ func TestCreateTitleNull(t *testing.T) {
 	var i PostInteractor
 	post := makePost("", testContent, two, two)
 	postTags := makePostTags()
-	joinPost := createJoinPost(post, postTags)
+	joinPost := makeJoinPost(post, postTags)
 
 	beforePostTagCount := countPostTag()
 
@@ -109,7 +109,7 @@ func TestCreateTitleTooLong(t *testing.T) {
 	var i PostInteractor
 	post := makePost("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", testContent, two, two)
 	postTags := makePostTags()
-	joinPost := createJoinPost(post, postTags)
+	joinPost := makeJoinPost(post, postTags)
 	beforePostTagCount := countPostTag()
 
 	_, err := i.Create(&joinPost)
@@ -124,7 +124,7 @@ func TestDelete(t *testing.T) {
 	log.Println("DemoPost", DemoPost)
 	post := makePost(testTitle, testContent, two, two)
 	postTags := makePostTags()
-	joinPost := createJoinPost(post, postTags)
+	joinPost := makeJoinPost(post, postTags)
 
 	cretedJoinPost, err := i.Create(&joinPost)
 
@@ -155,7 +155,7 @@ func TestDelete(t *testing.T) {
 func TestUpdatePost(t *testing.T) {
 	var i PostInteractor
 	post := makePost(testTitle, testContent, two, two)
-	joinPost := createJoinPost(post, nil)
+	joinPost := makeJoinPost(post, nil)
 	createdJoinPost, err := i.Create(&joinPost)
 
 	assert.Equal(t, nil, err)
@@ -183,7 +183,7 @@ func TestUpdatePostTag(t *testing.T) {
 	var i PostInteractor
 	post := makePost(testTitle, testContent, two, two)
 	postTags := makePostTags()
-	joinPost := createJoinPost(post, postTags)
+	joinPost := makeJoinPost(post, postTags)
 
 	createdPost, err := i.Create(&joinPost)
 	assert.Equal(t, nil, err)

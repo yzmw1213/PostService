@@ -5,14 +5,11 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/go-playground/validator/v10"
-	"google.golang.org/grpc"
 
 	"github.com/yzmw1213/PostService/db"
 	"github.com/yzmw1213/PostService/domain/model"
-	"github.com/yzmw1213/PostService/grpc/userservice"
 	"github.com/yzmw1213/PostService/usecase/repository"
 )
 
@@ -278,35 +275,35 @@ func deletePostTagByPostID(ID uint32) {
 // 	return userservice.NewUserServiceClient(cc)
 // }
 
-func getUserData() map[uint32]model.User {
-	proxyServerURL := os.Getenv("PROXY_SERVER_URL")
-	log.Println("proxyServerURL", proxyServerURL)
-	cc, err := grpc.Dial(proxyServerURL, grpc.WithInsecure())
-	if err != nil {
-		log.Fatalf("could not connect: %v", err)
-	}
+// func getUserData() map[uint32]model.User {
+// 	proxyServerURL := os.Getenv("PROXY_SERVER_URL")
+// 	log.Println("proxyServerURL", proxyServerURL)
+// 	cc, err := grpc.Dial(proxyServerURL, grpc.WithInsecure())
+// 	if err != nil {
+// 		log.Fatalf("could not connect: %v", err)
+// 	}
 
-	defer cc.Close()
+// 	defer cc.Close()
 
-	userClient := userservice.NewUserServiceClient(cc)
-	request := &userservice.ListUserRequest{}
-	res, err := userClient.ListUser(context.Background(), request)
+// 	userClient := userservice.NewUserServiceClient(cc)
+// 	request := &userservice.ListUserRequest{}
+// 	res, err := userClient.ListUser(context.Background(), request)
 
-	if err != nil {
-		panic(err)
-	}
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	resUsers := res.GetUser()
-	var users map[uint32]model.User
-	for _, user := range resUsers {
-		id := user.UserId
+// 	resUsers := res.GetUser()
+// 	var users map[uint32]model.User
+// 	for _, user := range resUsers {
+// 		id := user.UserId
 
-		users[id] = model.User{
-			ID:       user.UserId,
-			UserName: user.UserName,
-		}
-	}
+// 		users[id] = model.User{
+// 			ID:       user.UserId,
+// 			UserName: user.UserName,
+// 		}
+// 	}
 
-	return users
+// 	return users
 
-}
+// }

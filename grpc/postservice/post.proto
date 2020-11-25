@@ -14,7 +14,9 @@ message Post {
   repeated uint32 tags=7;
   // string photo_url =7;
   uint32 createUser_id =8;
-  uint32 updateUser_id =9;
+  string createUser_name =9;
+  uint32 updateUser_id =10;
+  string updateUser_name =11;
 }
 
 // レスポンスのステータス

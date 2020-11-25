@@ -127,12 +127,13 @@ func makeGrpcPost(post *model.JoinPost) *postservice.Post {
 	gPost := &postservice.Post{
 		Id: post.Post.ID,
 		// Status:       post.Status,
-		Title:        post.Post.Title,
-		Content:      post.Post.Content,
-		MaxNum:       post.Post.MaxNum,
-		Gender:       post.Post.Gender,
-		CreateUserId: post.Post.CreateUserID,
-		UpdateUserId: post.Post.UpdateUserID,
+		Title:          post.Post.Title,
+		Content:        post.Post.Content,
+		MaxNum:         post.Post.MaxNum,
+		Gender:         post.Post.Gender,
+		CreateUserId:   post.Post.CreateUserID,
+		CreateUserName: post.User.UserName,
+		UpdateUserId:   post.Post.UpdateUserID,
 	}
 
 	for _, postTag := range post.PostTags {

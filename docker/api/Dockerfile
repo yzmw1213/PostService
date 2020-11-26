@@ -11,6 +11,7 @@ ENV DOCKERIZE_VERSION v0.6.1
 RUN apt-get update && \
   apt-get install -y wget \
   curl \
+  lsof \
   unzip \
   libprotobuf-dev \
   libprotoc-dev \

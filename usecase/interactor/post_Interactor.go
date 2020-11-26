@@ -85,18 +85,14 @@ func (b *PostInteractor) DeleteByID(id uint32) error {
 }
 
 // List 投稿を全件取得
-func (b *PostInteractor) List() ([]model.Post, error) {
-	var postList []model.Post
+func (b *PostInteractor) List() ([]model.JoinPost, error) {
 	rows, err := listAll(context.Background())
 	if err != nil {
 		fmt.Println("Error happened")
-		return []model.Post{}, err
+		return []model.JoinPost{}, err
 	}
-	for _, row := range rows {
-		postList = append(postList, row)
-	}
-
-	return postList, nil
+	// 取得したpostsに紐付け情報を付与して返す
+	return createJoinPosts(rows)
 }
 
 // listAll 全件取得
@@ -167,15 +163,17 @@ func (b *PostInteractor) GetByID(ID uint32) (model.Post, error) {
 // GetJoinPostByID IDを元に投稿、紐付け情報を1件取得する
 func (b *PostInteractor) GetJoinPostByID(ID uint32) (model.JoinPost, error) {
 	post, err := b.GetByID(ID)
-	// 投稿に紐づくタグを取得
-	postTags, err := listPostTagsByID(ID)
 
 	if err != nil {
 		log.Printf("Error happend while Read for ID: %v\n", ID)
 		return model.JoinPost{}, err
 	}
 
-	joinPost := createJoinPost(post, postTags)
+	joinPost, err := createJoinPostSingle(post)
+	if err != nil {
+		log.Printf("Error happend while Read for ID: %v\n", ID)
+		return model.JoinPost{}, err
+	}
 
 	return joinPost, nil
 }
@@ -197,12 +195,52 @@ func listPostTagsByID(ID uint32) ([]model.PostTag, error) {
 	return postTagList, nil
 }
 
-func createJoinPost(post model.Post, postTags []model.PostTag) model.JoinPost {
-	joinPost := model.JoinPost{
+func createJoinPosts(posts []model.Post) ([]model.JoinPost, error) {
+	var joinPosts []model.JoinPost
+	// 全ユーザーをUserServiceから取得
+	// users := getUserData()
+
+	if err != nil {
+		return []model.JoinPost{}, err
+	}
+
+	for _, post := range posts {
+		// 投稿者のユーザー情報
+		// post.UserIDより取得
+		// createUser := users[post.CreateUserID]
+
+		// 紐付けられているタグ情報
+		// タグ名はフロント側で保持しているタグストアから取得する
+		postTags, err := listPostTagsByID(post.ID)
+		if err != nil {
+			return []model.JoinPost{}, err
+		}
+		// Likeしているユーザー
+		// post.IDより取得
+
+		// エントリーしているユーザー
+		// post.IDより取得
+		joinPost := makeJoinPost(post, model.User{}, postTags)
+		joinPosts = append(joinPosts, joinPost)
+	}
+
+	return joinPosts, nil
+}
+
+// 単一投稿のJoinPostを返す
+func createJoinPostSingle(post model.Post) (model.JoinPost, error) {
+	posts := []model.Post{post}
+	joinPost, err := createJoinPosts(posts)
+
+	return joinPost[0], err
+}
+
+func makeJoinPost(post model.Post, createUser model.User, postTags []model.PostTag) model.JoinPost {
+	return model.JoinPost{
 		Post:     &post,
+		User:     &createUser,
 		PostTags: postTags,
 	}
-	return joinPost
 }
 
 func countPostTag() int {
@@ -224,3 +262,48 @@ func deletePostTagByPostID(ID uint32) {
 	DB := db.GetDB()
 	DB.Where("post_id = ?", ID).Delete(&postTags)
 }
+
+// func createUserClient() userservice.UserServiceClient {
+// 	proxyServerURL := os.Getenv("PROXY_SERVER_URL")
+// 	log.Println("proxyServerURL", proxyServerURL)
+// 	cc, err := grpc.Dial(proxyServerURL, grpc.WithInsecure())
+// 	if err != nil {
+// 		log.Fatalf("could not connect: %v", err)
+// 	}
+
+// 	defer cc.Close()
+// 	return userservice.NewUserServiceClient(cc)
+// }
+
+// func getUserData() map[uint32]model.User {
+// 	proxyServerURL := os.Getenv("PROXY_SERVER_URL")
+// 	log.Println("proxyServerURL", proxyServerURL)
+// 	cc, err := grpc.Dial(proxyServerURL, grpc.WithInsecure())
+// 	if err != nil {
+// 		log.Fatalf("could not connect: %v", err)
+// 	}
+
+// 	defer cc.Close()
+
+// 	userClient := userservice.NewUserServiceClient(cc)
+// 	request := &userservice.ListUserRequest{}
+// 	res, err := userClient.ListUser(context.Background(), request)
+
+// 	if err != nil {
+// 		panic(err)
+// 	}
+
+// 	resUsers := res.GetUser()
+// 	var users map[uint32]model.User
+// 	for _, user := range resUsers {
+// 		id := user.UserId
+
+// 		users[id] = model.User{
+// 			ID:       user.UserId,
+// 			UserName: user.UserName,
+// 		}
+// 	}
+
+// 	return users
+
+// }

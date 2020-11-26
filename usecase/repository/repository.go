@@ -8,7 +8,7 @@ type PostRepository interface {
 	GetByID(id uint32) (model.Post, error)
 	GetJoinPostByID(id uint32) (model.JoinPost, error)
 	DeleteByID(id uint32) error
-	List() ([]model.Post, error)
+	List() ([]model.JoinPost, error)
 	Update(*model.JoinPost) (*model.JoinPost, error)
 }
 

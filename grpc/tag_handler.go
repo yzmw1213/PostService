@@ -5,13 +5,13 @@ import (
 	"log"
 
 	"github.com/yzmw1213/PostService/domain/model"
-	"github.com/yzmw1213/PostService/grpc/post_grpc"
+	"github.com/yzmw1213/PostService/grpc/tagservice"
 )
 
 const (
 	// StatusCreateTagSuccess タグ作成成功ステータス
 	StatusCreateTagSuccess string = "TAG_CREATE_SUCCESS"
-	// StatusUpdateTagSuccess タグ作成成功ステータス
+	// StatusUpdateTagSuccess タグ更新作成成功ステータス
 	StatusUpdateTagSuccess string = "TAG_UPDATE_SUCCESS"
 	// StatusDeleteTagSuccess タグ削除成功ステータス
 	StatusDeleteTagSuccess string = "TAG_DELETE_SUCCESS"
@@ -23,7 +23,7 @@ const (
 	StatusTagNameStringCount string = "TAG_NAME_COUNT_ERROR"
 )
 
-func (s server) CreateTag(ctx context.Context, req *post_grpc.CreateTagRequest) (*post_grpc.CreateTagResponse, error) {
+func (s server) CreateTag(ctx context.Context, req *tagservice.CreateTagRequest) (*tagservice.CreateTagResponse, error) {
 	postData := req.GetTag()
 	tag := makeTagModel(postData)
 
@@ -40,7 +40,7 @@ func (s server) CreateTag(ctx context.Context, req *post_grpc.CreateTagRequest) 
 	return s.makeCreateTagResponse(StatusCreateTagSuccess), nil
 }
 
-func (s server) DeleteTag(ctx context.Context, req *post_grpc.DeleteTagRequest) (*post_grpc.DeleteTagResponse, error) {
+func (s server) DeleteTag(ctx context.Context, req *tagservice.DeleteTagRequest) (*tagservice.DeleteTagResponse, error) {
 	id := req.GetTagId()
 
 	// 既にタグが削除されていないかチェック
@@ -59,7 +59,7 @@ func (s server) DeleteTag(ctx context.Context, req *post_grpc.DeleteTagRequest) 
 	return s.makeDeleteTagResponse(StatusDeleteTagSuccess), nil
 }
 
-func (s server) UpdateTag(ctx context.Context, req *post_grpc.UpdateTagRequest) (*post_grpc.UpdateTagResponse, error) {
+func (s server) UpdateTag(ctx context.Context, req *tagservice.UpdateTagRequest) (*tagservice.UpdateTagResponse, error) {
 	postData := req.GetTag()
 
 	tag := makeTagModel(postData)
@@ -71,23 +71,41 @@ func (s server) UpdateTag(ctx context.Context, req *post_grpc.UpdateTagRequest) 
 	return s.makeUpdateTagResponse(StatusUpdateTagSuccess), nil
 }
 
-func (s server) ListTag(ctx context.Context, req *post_grpc.ListTagRequest) (*post_grpc.ListTagResponse, error) {
+// ListTag 全てのタグを取得して返す
+func (s server) ListTag(ctx context.Context, req *tagservice.ListTagRequest) (*tagservice.ListTagResponse, error) {
 	rows, err := s.TagUsecase.List()
 	if err != nil {
 		return nil, err
 	}
-	var tags []*post_grpc.Tag
+	var tags []*tagservice.Tag
 	for _, tag := range rows {
 		tag := makeGrpcTag(&tag)
 		tags = append(tags, tag)
 	}
-	res := &post_grpc.ListTagResponse{
+	res := &tagservice.ListTagResponse{
 		Tag: tags,
 	}
 	return res, nil
 }
 
-func makeTagModel(gTag *post_grpc.Tag) *model.Tag {
+// ListValidTag 公開ステータスが公開のタグを取得して返す
+func (s server) ListValidTag(ctx context.Context, req *tagservice.ListValidTagRequest) (*tagservice.ListValidTagResponse, error) {
+	rows, err := s.TagUsecase.ListAllValidTag()
+	if err != nil {
+		return nil, err
+	}
+	var tags []*tagservice.Tag
+	for _, tag := range rows {
+		tag := makeGrpcTag(&tag)
+		tags = append(tags, tag)
+	}
+	res := &tagservice.ListValidTagResponse{
+		Tag: tags,
+	}
+	return res, nil
+}
+
+func makeTagModel(gTag *tagservice.Tag) *model.Tag {
 	tag := &model.Tag{
 		ID:           gTag.GetTagId(),
 		TagName:      gTag.GetTagName(),
@@ -98,8 +116,8 @@ func makeTagModel(gTag *post_grpc.Tag) *model.Tag {
 	return tag
 }
 
-func makeGrpcTag(tag *model.Tag) *post_grpc.Tag {
-	gTag := &post_grpc.Tag{
+func makeGrpcTag(tag *model.Tag) *tagservice.Tag {
+	gTag := &tagservice.Tag{
 		TagId:        tag.ID,
 		TagName:      tag.TagName,
 		Status:       tag.Status,
@@ -110,10 +128,10 @@ func makeGrpcTag(tag *model.Tag) *post_grpc.Tag {
 }
 
 // makeCreateTagResponse CreateTagメソッドのresponseを生成し返す
-func (s server) makeCreateTagResponse(statusCode string) *post_grpc.CreateTagResponse {
-	res := &post_grpc.CreateTagResponse{}
+func (s server) makeCreateTagResponse(statusCode string) *tagservice.CreateTagResponse {
+	res := &tagservice.CreateTagResponse{}
 	if statusCode != "" {
-		responseStatus := &post_grpc.ResponseStatus{
+		responseStatus := &tagservice.ResponseStatus{
 			Code: statusCode,
 		}
 		res.Status = responseStatus
@@ -122,10 +140,10 @@ func (s server) makeCreateTagResponse(statusCode string) *post_grpc.CreateTagRes
 }
 
 // makeDeleteTagResponse CreateTagメソッドのresponseを生成し返す
-func (s server) makeDeleteTagResponse(statusCode string) *post_grpc.DeleteTagResponse {
-	res := &post_grpc.DeleteTagResponse{}
+func (s server) makeDeleteTagResponse(statusCode string) *tagservice.DeleteTagResponse {
+	res := &tagservice.DeleteTagResponse{}
 	if statusCode != "" {
-		responseStatus := &post_grpc.ResponseStatus{
+		responseStatus := &tagservice.ResponseStatus{
 			Code: statusCode,
 		}
 		res.Status = responseStatus
@@ -134,10 +152,10 @@ func (s server) makeDeleteTagResponse(statusCode string) *post_grpc.DeleteTagRes
 }
 
 // makeUpdateTagResponse UpdateTagメソッドのresponseを生成し返す
-func (s server) makeUpdateTagResponse(statusCode string) *post_grpc.UpdateTagResponse {
-	res := &post_grpc.UpdateTagResponse{}
+func (s server) makeUpdateTagResponse(statusCode string) *tagservice.UpdateTagResponse {
+	res := &tagservice.UpdateTagResponse{}
 	if statusCode != "" {
-		responseStatus := &post_grpc.ResponseStatus{
+		responseStatus := &tagservice.ResponseStatus{
 			Code: statusCode,
 		}
 		res.Status = responseStatus
@@ -158,7 +176,7 @@ func (s server) tagExistsByTagName(tagName string) bool {
 }
 
 // tagExistsByTagID　IDが一致するタグの登録があるかの判定
-func (s server) tagExistsByTagID(tagID int32) bool {
+func (s server) tagExistsByTagID(tagID uint32) bool {
 	tag, _ := s.TagUsecase.GetTagByTagID(tagID)
 	log.Println(tag)
 	if tag.ID == 0 {

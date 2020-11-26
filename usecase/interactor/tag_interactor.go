@@ -15,9 +15,9 @@ var (
 	tag  model.Tag
 	tags []model.Tag
 	// ValidTagStatus タグ公開ステータス
-	ValidTagStatus int32 = 1
+	ValidTagStatus uint32 = 1
 	// InValidTagStatus タグ非公開ステータス
-	InValidTagStatus int32 = 2
+	InValidTagStatus uint32 = 2
 )
 
 // TagInteractor タグサービスを提供するメソッド群
@@ -42,7 +42,7 @@ func (i *TagInteractor) Create(postData *model.Tag) (*model.Tag, error) {
 }
 
 // DeleteByID 指定したIDのタグ1件を削除
-func (i *TagInteractor) DeleteByID(id int32) error {
+func (i *TagInteractor) DeleteByID(id uint32) error {
 	DB := db.GetDB()
 	if err := DB.Where("id = ? ", id).Delete(&tag).Error; err != nil {
 		return err
@@ -65,6 +65,17 @@ func (i *TagInteractor) List() ([]model.Tag, error) {
 	return tagList, nil
 }
 
+// ListValidTag 有効タグを全件取得する
+func (i *TagInteractor) ListValidTag() ([]model.Tag, error) {
+	DB := db.GetDB()
+	var tags []model.Tag
+
+	if err := DB.Where("status = ?", "1").Find(&tags).Error; err != nil {
+		return []model.Tag{}, err
+	}
+	return tags, nil
+}
+
 // listAllTag タグ全件取得
 func listAllTag(ctx context.Context) ([]model.Tag, error) {
 	DB := db.GetDB()
@@ -77,24 +88,17 @@ func listAllTag(ctx context.Context) ([]model.Tag, error) {
 	return tags, nil
 }
 
-// listAllValidTag 有効タグ全件取得
-func listAllValidTag(ctx context.Context) ([]model.Tag, error) {
+// ListAllValidTag 有効タグ全件取得
+func (i *TagInteractor) ListAllValidTag() ([]model.Tag, error) {
 	DB := db.GetDB()
-
-	searchTags := &model.Tag{
-		Status: 1,
-	}
-
-	rows, err := DB.Find(&searchTags).Rows()
+	var tags []model.Tag
+	err := DB.Where("status = ?", ValidTagStatus).Select("tags.id, tags.tag_name").Find(&tags).Error
+	log.Println("tags", tags)
 	if err != nil {
-		log.Println("Error occured")
-		return nil, err
+		fmt.Println("Error happened")
+		return []model.Tag{}, err
 	}
 
-	for rows.Next() {
-		DB.ScanRows(rows, &tag)
-		tags = append(tags, tag)
-	}
 	return tags, nil
 }
 
@@ -129,7 +133,7 @@ func (i *TagInteractor) GetTagByTagName(tagName string) (model.Tag, error) {
 }
 
 // GetTagByTagID TagIDを元にタグを1件取得する
-func (i *TagInteractor) GetTagByTagID(tagID int32) (model.Tag, error) {
+func (i *TagInteractor) GetTagByTagID(tagID uint32) (model.Tag, error) {
 	var tag model.Tag
 
 	DB := db.GetDB()
@@ -140,15 +144,4 @@ func (i *TagInteractor) GetTagByTagID(tagID int32) (model.Tag, error) {
 	DB.Table(db.TagTableName).Scan(row)
 
 	return tag, nil
-}
-
-// GetValidTag 有効タグを全件取得する
-func (i *TagInteractor) GetValidTag() ([]model.Tag, error) {
-	DB := db.GetDB()
-	var tags []model.Tag
-
-	if err := DB.Where("status = ?", "1").Find(&tags).Error; err != nil {
-		return []model.Tag{}, err
-	}
-	return tags, nil
 }

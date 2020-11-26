@@ -5,28 +5,28 @@ import (
 	"testing"
 
 	"github.com/go-playground/assert/v2"
-	"github.com/yzmw1213/PostService/grpc/post_grpc"
+	"github.com/yzmw1213/PostService/grpc/tagservice"
 	"google.golang.org/grpc"
 )
 
 func TestCreate(t *testing.T) {
-	var createTag *post_grpc.Tag
+	var createTag *tagservice.Tag
 	ctx := context.Background()
 	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer conn.Close()
-	client := post_grpc.NewTagServiceClient(conn)
+	client := tagservice.NewTagServiceClient(conn)
 
-	createTag = &post_grpc.Tag{
+	createTag = &tagservice.Tag{
 		TagName:      "tagName",
 		Status:       one,
-		CreateUserId: "demoUser1",
-		UpdateUserId: "",
+		CreateUserId: 1,
+		UpdateUserId: 0,
 	}
 
-	createReq := &post_grpc.CreateTagRequest{
+	createReq := &tagservice.CreateTagRequest{
 		Tag: createTag,
 	}
 
@@ -37,23 +37,23 @@ func TestCreate(t *testing.T) {
 }
 
 func TestCreateTagNameNull(t *testing.T) {
-	var createTag *post_grpc.Tag
+	var createTag *tagservice.Tag
 	ctx := context.Background()
 	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer conn.Close()
-	client := post_grpc.NewTagServiceClient(conn)
+	client := tagservice.NewTagServiceClient(conn)
 
-	createTag = &post_grpc.Tag{
+	createTag = &tagservice.Tag{
 		TagName:      "",
 		Status:       one,
-		CreateUserId: "demoUser1",
-		UpdateUserId: "",
+		CreateUserId: 1,
+		UpdateUserId: 0,
 	}
 
-	createReq := &post_grpc.CreateTagRequest{
+	createReq := &tagservice.CreateTagRequest{
 		Tag: createTag,
 	}
 
@@ -73,9 +73,9 @@ func TestList(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer conn.Close()
-	client := post_grpc.NewTagServiceClient(conn)
+	client := tagservice.NewTagServiceClient(conn)
 
-	req := &post_grpc.ListTagRequest{}
+	req := &tagservice.ListTagRequest{}
 
 	_, err = client.ListTag(ctx, req)
 

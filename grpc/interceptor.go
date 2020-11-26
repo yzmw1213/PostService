@@ -38,14 +38,26 @@ func convertErrorWithStatus(err error) error {
 		for _, err := range err.(validator.ValidationErrors) {
 			fieldName = err.Field()
 			switch fieldName {
+			// 投稿Contentのバリデーションエラー
 			case "Content":
 				typ = err.Tag()
 				switch typ {
 				case "max":
-					errorStatus = messageContentMax
+					errorStatus = StatusPostContentStringCount
 					break
 				case "min":
-					errorStatus = messageContentMin
+					errorStatus = StatusPostContentStringCount
+					break
+				}
+			// 投稿Titleのバリデーションエラー
+			case "Title":
+				typ = err.Tag()
+				switch typ {
+				case "max":
+					errorStatus = StatusPostTitleStringCount
+					break
+				case "min":
+					errorStatus = StatusPostTitleStringCount
 					break
 				}
 			// タグ名のバリデーションエラー

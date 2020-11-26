@@ -1,13 +1,27 @@
 syntax = "proto3";
 
-package post_grpc;
+package postservice;
 
-option go_package = ".;post_grpc";
+option go_package = ".;postservice";
 
 message Post {
-  int32 id = 1;
-  int32 user_id = 2;
-  string content = 3;
+  uint32 id = 1;
+  // uint32 status = 2;
+  string title=3;
+  string content =4;
+  uint32 max_num =5;
+  uint32 gender =6;
+  repeated uint32 tags=7;
+  // string photo_url =7;
+  uint32 createUser_id =8;
+  string createUser_name =9;
+  uint32 updateUser_id =10;
+  string updateUser_name =11;
+}
+
+// レスポンスのステータス
+message ResponseStatus{
+  string code =1;
 }
 
 message CreatePostRequest {
@@ -15,11 +29,11 @@ message CreatePostRequest {
 }
 
 message CreatePostResponse {
-  Post post=1;
+  ResponseStatus status=1;
 }
 
 message ReadPostRequest {
-  int32 id=1;
+  uint32 id=1;
 }
 
 message ReadPostResponse {
@@ -31,22 +45,22 @@ message UpdatePostRequest {
 }
 
 message UpdatePostResponse {
-  Post post=1;
+  ResponseStatus status=1;
 }
 
 message DeletePostRequest {
-  int32 id=1;
+  uint32 id=1;
 }
 
 message DeletePostResponse {
-  Post post=1;
+  ResponseStatus status=1;
 }
 
 message ListPostRequest {
 }
 
 message ListPostResponse {
-  Post post=1;
+  repeated Post post=1;
 }
 
 service PostService {
@@ -54,5 +68,5 @@ service PostService {
   rpc ReadPost(ReadPostRequest) returns (ReadPostResponse);
   rpc UpdatePost(UpdatePostRequest) returns (UpdatePostResponse);
   rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
-  rpc ListPost(ListPostRequest) returns (stream ListPostResponse);
+  rpc ListPost(ListPostRequest) returns (ListPostResponse);
 }

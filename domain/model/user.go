@@ -1,5 +1,6 @@
 package model
 
+// User ユーザー構造体
 type User struct {
 	ID        uint32 `gorm:"primary_key"`
 	UserName  string `validate:"min=6,max=16"`

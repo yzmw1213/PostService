@@ -5,11 +5,14 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/go-playground/validator/v10"
+	"google.golang.org/grpc"
 
 	"github.com/yzmw1213/PostService/db"
 	"github.com/yzmw1213/PostService/domain/model"
+	"github.com/yzmw1213/PostService/grpc/userservice"
 	"github.com/yzmw1213/PostService/usecase/repository"
 )
 
@@ -198,16 +201,14 @@ func listPostTagsByID(ID uint32) ([]model.PostTag, error) {
 func createJoinPosts(posts []model.Post) ([]model.JoinPost, error) {
 	var joinPosts []model.JoinPost
 	// 全ユーザーをUserServiceから取得
-	// users := getUserData()
-
+	users := getUserData()
 	if err != nil {
 		return []model.JoinPost{}, err
 	}
 
 	for _, post := range posts {
 		// 投稿者のユーザー情報
-		// post.UserIDより取得
-		// createUser := users[post.CreateUserID]
+		createUser := users[post.CreateUserID]
 
 		// 紐付けられているタグ情報
 		// タグ名はフロント側で保持しているタグストアから取得する
@@ -220,7 +221,7 @@ func createJoinPosts(posts []model.Post) ([]model.JoinPost, error) {
 
 		// エントリーしているユーザー
 		// post.IDより取得
-		joinPost := makeJoinPost(post, model.User{}, postTags)
+		joinPost := makeJoinPost(post, createUser, postTags)
 		joinPosts = append(joinPosts, joinPost)
 	}
 
@@ -263,47 +264,35 @@ func deletePostTagByPostID(ID uint32) {
 	DB.Where("post_id = ?", ID).Delete(&postTags)
 }
 
-// func createUserClient() userservice.UserServiceClient {
-// 	proxyServerURL := os.Getenv("PROXY_SERVER_URL")
-// 	log.Println("proxyServerURL", proxyServerURL)
-// 	cc, err := grpc.Dial(proxyServerURL, grpc.WithInsecure())
-// 	if err != nil {
-// 		log.Fatalf("could not connect: %v", err)
-// 	}
+// ユーザーサービスからユーザー情報取得
+func getUserData() map[uint32]model.User {
+	proxyServerURL := os.Getenv("PROXY_SERVER_URL")
 
-// 	defer cc.Close()
-// 	return userservice.NewUserServiceClient(cc)
-// }
+	cc, err := grpc.Dial(proxyServerURL, grpc.WithInsecure())
+	if err != nil {
+		log.Fatalf("could not connect: %v", err)
+	}
 
-// func getUserData() map[uint32]model.User {
-// 	proxyServerURL := os.Getenv("PROXY_SERVER_URL")
-// 	log.Println("proxyServerURL", proxyServerURL)
-// 	cc, err := grpc.Dial(proxyServerURL, grpc.WithInsecure())
-// 	if err != nil {
-// 		log.Fatalf("could not connect: %v", err)
-// 	}
+	defer cc.Close()
+	userClient := userservice.NewUserServiceClient(cc)
 
-// 	defer cc.Close()
+	request := &userservice.ListUserRequest{}
+	res, err := userClient.ListUser(context.Background(), request)
+	if err != nil {
+		panic(err)
+	}
 
-// 	userClient := userservice.NewUserServiceClient(cc)
-// 	request := &userservice.ListUserRequest{}
-// 	res, err := userClient.ListUser(context.Background(), request)
+	resUsers := res.GetUser()
+	var users map[uint32]model.User
+	users = map[uint32]model.User{}
+	for _, user := range resUsers {
+		id := user.UserId
 
-// 	if err != nil {
-// 		panic(err)
-// 	}
+		users[id] = model.User{
+			ID:       user.UserId,
+			UserName: user.UserName,
+		}
+	}
+	return users
 
-// 	resUsers := res.GetUser()
-// 	var users map[uint32]model.User
-// 	for _, user := range resUsers {
-// 		id := user.UserId
-
-// 		users[id] = model.User{
-// 			ID:       user.UserId,
-// 			UserName: user.UserName,
-// 		}
-// 	}
-
-// 	return users
-
-// }
+}

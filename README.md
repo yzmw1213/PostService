@@ -23,3 +23,8 @@ Goで構築するマイクロサービスの投稿機能サービス
   - go-playground/validatorを用いたバリデーション
 - サービス間通信
   - Envoyプロキシを介した他サービスとの通信
+
+## 関連レポジトリ
+- [フロントエンド](https://github.com/yzmw1213/Front)
+- [Envoyプロキシ](https://github.com/yzmw1213/Proxy)
+- [ユーザーサービス](https://github.com/yzmw1213/UserService)

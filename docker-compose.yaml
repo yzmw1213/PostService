@@ -38,6 +38,7 @@ services:
     command: sh -c "make generate; go run main.go"
     # 環境変数
     environment:
+      PROXY_SERVER_URL: ${PROXY_SERVER_URL}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       DB_NAME: ${DB_NAME}
       DB_ADRESS: post_db:3306

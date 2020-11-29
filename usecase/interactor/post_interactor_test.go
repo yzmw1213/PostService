@@ -13,8 +13,6 @@ import (
 var DemoPost = model.Post{
 	Title:        testTitle,
 	Content:      testContent,
-	MaxNum:       two,
-	Gender:       two,
 	CreateUserID: testPostUserID,
 }
 
@@ -23,8 +21,6 @@ var DemoPostTag = model.PostTag{}
 var DemoPostContentNull = model.Post{
 	Title:        testTitle,
 	Content:      "",
-	MaxNum:       two,
-	Gender:       two,
 	CreateUserID: testPostUserID,
 }
 
@@ -36,7 +32,7 @@ var DemoUser = model.User{}
 func TestCreate(t *testing.T) {
 	initTable()
 	var i PostInteractor
-	post := makePost(testTitle, testContent, two, two)
+	post := makePost(testTitle, testContent)
 	postTags := makePostTags()
 
 	//
@@ -64,7 +60,7 @@ func TestCreate(t *testing.T) {
 
 func TestCreateContentNull(t *testing.T) {
 	var i PostInteractor
-	post := makePost(testTitle, "", two, two)
+	post := makePost(testTitle, "")
 	postTags := makePostTags()
 	joinPost := makeJoinPost(post, DemoUser, postTags)
 
@@ -79,7 +75,7 @@ func TestCreateContentNull(t *testing.T) {
 
 func TestCreateContentTooLong(t *testing.T) {
 	var i PostInteractor
-	post := makePost(testTitle, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", two, two)
+	post := makePost(testTitle, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 	postTags := makePostTags()
 	joinPost := makeJoinPost(post, DemoUser, postTags)
 
@@ -94,7 +90,7 @@ func TestCreateContentTooLong(t *testing.T) {
 
 func TestCreateTitleNull(t *testing.T) {
 	var i PostInteractor
-	post := makePost("", testContent, two, two)
+	post := makePost("", testContent)
 	postTags := makePostTags()
 	joinPost := makeJoinPost(post, DemoUser, postTags)
 
@@ -109,7 +105,7 @@ func TestCreateTitleNull(t *testing.T) {
 
 func TestCreateTitleTooLong(t *testing.T) {
 	var i PostInteractor
-	post := makePost("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", testContent, two, two)
+	post := makePost("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", testContent)
 	postTags := makePostTags()
 	joinPost := makeJoinPost(post, DemoUser, postTags)
 	beforePostTagCount := countPostTag()
@@ -124,7 +120,7 @@ func TestCreateTitleTooLong(t *testing.T) {
 func TestDelete(t *testing.T) {
 	var i PostInteractor
 	log.Println("DemoPost", DemoPost)
-	post := makePost(testTitle, testContent, two, two)
+	post := makePost(testTitle, testContent)
 	postTags := makePostTags()
 	joinPost := makeJoinPost(post, DemoUser, postTags)
 
@@ -156,7 +152,7 @@ func TestDelete(t *testing.T) {
 
 func TestUpdatePost(t *testing.T) {
 	var i PostInteractor
-	post := makePost(testTitle, testContent, two, two)
+	post := makePost(testTitle, testContent)
 	joinPost := makeJoinPost(post, DemoUser, nil)
 	createdJoinPost, err := i.Create(&joinPost)
 
@@ -183,7 +179,7 @@ func TestUpdatePost(t *testing.T) {
 
 func TestUpdatePostTag(t *testing.T) {
 	var i PostInteractor
-	post := makePost(testTitle, testContent, two, two)
+	post := makePost(testTitle, testContent)
 	postTags := makePostTags()
 	joinPost := makeJoinPost(post, DemoUser, postTags)
 
@@ -218,13 +214,11 @@ func makePostTags() []model.PostTag {
 	}
 }
 
-func makePost(title string, content string, maxNum uint32, gender uint32) model.Post {
+func makePost(title string, content string) model.Post {
 	return model.Post{
 		ID:           zero,
 		Title:        title,
 		Content:      content,
-		MaxNum:       maxNum,
-		Gender:       gender,
 		CreateUserID: testPostUserID,
 		UpdateUserID: zero,
 	}

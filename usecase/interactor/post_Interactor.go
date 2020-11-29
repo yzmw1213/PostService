@@ -282,7 +282,7 @@ func getUserData() map[uint32]model.User {
 		panic(err)
 	}
 
-	resUsers := res.GetUser()
+	resUsers := res.GetProfile()
 	var users map[uint32]model.User
 	users = map[uint32]model.User{}
 	for _, user := range resUsers {

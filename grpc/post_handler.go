@@ -101,8 +101,6 @@ func makePostModel(gPost *postservice.Post) *model.Post {
 		// Status:       gPost.GetStatus(),
 		Title:        gPost.GetTitle(),
 		Content:      gPost.GetContent(),
-		MaxNum:       gPost.GetMaxNum(),
-		Gender:       gPost.GetGender(),
 		CreateUserID: gPost.GetCreateUserId(),
 		UpdateUserID: gPost.GetUpdateUserId(),
 	}
@@ -129,8 +127,6 @@ func makeGrpcPost(post *model.JoinPost) *postservice.Post {
 		// Status:       post.Status,
 		Title:          post.Post.Title,
 		Content:        post.Post.Content,
-		MaxNum:         post.Post.MaxNum,
-		Gender:         post.Post.Gender,
 		CreateUserId:   post.Post.CreateUserID,
 		CreateUserName: post.User.UserName,
 		UpdateUserId:   post.Post.UpdateUserID,

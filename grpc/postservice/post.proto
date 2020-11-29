@@ -9,14 +9,12 @@ message Post {
   // uint32 status = 2;
   string title=3;
   string content =4;
-  uint32 max_num =5;
-  uint32 gender =6;
-  repeated uint32 tags=7;
+  repeated uint32 tags=5;
   // string photo_url =7;
-  uint32 createUser_id =8;
-  string createUser_name =9;
-  uint32 updateUser_id =10;
-  string updateUser_name =11;
+  uint32 createUser_id =6;
+  string createUser_name =7;
+  uint32 updateUser_id =8;
+  string updateUser_name =9;
 }
 
 // レスポンスのステータス

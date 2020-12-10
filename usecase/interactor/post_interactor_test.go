@@ -28,6 +28,8 @@ var DemoJoinPost = model.JoinPost{}
 
 var DemoUser = model.User{}
 
+var DemoPostLikeUser = []model.User{}
+
 // TestCreate 投稿作成の正常系
 func TestCreate(t *testing.T) {
 	initTable()
@@ -36,7 +38,7 @@ func TestCreate(t *testing.T) {
 	postTags := makePostTags()
 
 	//
-	joinPost := makeJoinPost(post, DemoUser, postTags)
+	joinPost := makeJoinPost(post, DemoUser, postTags, nil)
 
 	// 登録前のpostTag登録数
 	beforePostTagCount := countPostTag()
@@ -62,7 +64,7 @@ func TestCreateContentNull(t *testing.T) {
 	var i PostInteractor
 	post := makePost(testTitle, "")
 	postTags := makePostTags()
-	joinPost := makeJoinPost(post, DemoUser, postTags)
+	joinPost := makeJoinPost(post, DemoUser, postTags, nil)
 
 	beforePostTagCount := countPostTag()
 	_, err := i.Create(&joinPost)
@@ -77,7 +79,7 @@ func TestCreateContentTooLong(t *testing.T) {
 	var i PostInteractor
 	post := makePost(testTitle, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 	postTags := makePostTags()
-	joinPost := makeJoinPost(post, DemoUser, postTags)
+	joinPost := makeJoinPost(post, DemoUser, postTags, nil)
 
 	beforePostTagCount := countPostTag()
 
@@ -92,7 +94,7 @@ func TestCreateTitleNull(t *testing.T) {
 	var i PostInteractor
 	post := makePost("", testContent)
 	postTags := makePostTags()
-	joinPost := makeJoinPost(post, DemoUser, postTags)
+	joinPost := makeJoinPost(post, DemoUser, postTags, nil)
 
 	beforePostTagCount := countPostTag()
 
@@ -107,7 +109,7 @@ func TestCreateTitleTooLong(t *testing.T) {
 	var i PostInteractor
 	post := makePost("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", testContent)
 	postTags := makePostTags()
-	joinPost := makeJoinPost(post, DemoUser, postTags)
+	joinPost := makeJoinPost(post, DemoUser, postTags, nil)
 	beforePostTagCount := countPostTag()
 
 	_, err := i.Create(&joinPost)
@@ -122,7 +124,7 @@ func TestDelete(t *testing.T) {
 	log.Println("DemoPost", DemoPost)
 	post := makePost(testTitle, testContent)
 	postTags := makePostTags()
-	joinPost := makeJoinPost(post, DemoUser, postTags)
+	joinPost := makeJoinPost(post, DemoUser, postTags, nil)
 
 	cretedJoinPost, err := i.Create(&joinPost)
 
@@ -153,7 +155,7 @@ func TestDelete(t *testing.T) {
 func TestUpdatePost(t *testing.T) {
 	var i PostInteractor
 	post := makePost(testTitle, testContent)
-	joinPost := makeJoinPost(post, DemoUser, nil)
+	joinPost := makeJoinPost(post, DemoUser, nil, nil)
 	createdJoinPost, err := i.Create(&joinPost)
 
 	assert.Equal(t, nil, err)
@@ -181,7 +183,7 @@ func TestUpdatePostTag(t *testing.T) {
 	var i PostInteractor
 	post := makePost(testTitle, testContent)
 	postTags := makePostTags()
-	joinPost := makeJoinPost(post, DemoUser, postTags)
+	joinPost := makeJoinPost(post, DemoUser, postTags, nil)
 
 	createdPost, err := i.Create(&joinPost)
 	assert.Equal(t, nil, err)
@@ -198,6 +200,86 @@ func TestUpdatePostTag(t *testing.T) {
 	afterPostTagCount := countPostTagByPostID(postID)
 
 	assert.Equal(t, beforePostTagCount+1, afterPostTagCount)
+}
+
+func selectUsers() (uint32, uint32, uint32) {
+	users := getUserData()
+	var num int = 1
+
+	var user1 uint32
+	var user2 uint32
+	var user3 uint32
+	for i := range users {
+		if num == 1 {
+			user1 = i
+			log.Println("user1", user1)
+		}
+		if num == 2 {
+			user2 = i
+			log.Println("user2", user2)
+		}
+		if num == 3 {
+			user3 = i
+			log.Println("user3", user3)
+		}
+		num++
+	}
+	return user1, user2, user3
+}
+
+func TestLikePost(t *testing.T) {
+	var i PostInteractor
+
+	post := makePost(testTitle, testContent)
+	joinPost := makeJoinPost(post, DemoUser, nil, nil)
+	createdPost, err := i.Create(&joinPost)
+	assert.Equal(t, nil, err)
+	postID := createdPost.Post.ID
+	user1, user2, _ := selectUsers()
+	likeUser := &model.PostLikeUser{PostID: postID, UserID: user1}
+
+	_, err = i.Like(likeUser)
+	assert.Equal(t, nil, err)
+
+	// likeしているユーザー数をカウントするテスト
+	likeCount := countPostLikeUserByPostID(postID)
+	assert.Equal(t, 1, likeCount)
+
+	likeUser = &model.PostLikeUser{PostID: postID, UserID: user2}
+	_, err = i.Like(likeUser)
+
+	// likeしているユーザー数が増えている事をテスト
+	likeCount = countPostLikeUserByPostID(postID)
+	assert.Equal(t, 2, likeCount)
+}
+
+func TestNotLikePost(t *testing.T) {
+	var i PostInteractor
+	post := makePost(testTitle, testContent)
+	joinPost := makeJoinPost(post, DemoUser, nil, nil)
+	createdPost, err := i.Create(&joinPost)
+	assert.Equal(t, nil, err)
+	postID := createdPost.Post.ID
+	user1, user2, user3 := selectUsers()
+	likeUsers := []model.PostLikeUser{
+		{PostID: postID, UserID: user1},
+		{PostID: postID, UserID: user2},
+		{PostID: postID, UserID: user3},
+	}
+
+	for _, user := range likeUsers {
+		_, err = i.Like(&user)
+	}
+	assert.Equal(t, nil, err)
+
+	beforeLikeCount := countPostLikeUserByPostID(postID)
+
+	// お気に入りを1件削除
+	_, err = i.NotLike(&model.PostLikeUser{PostID: postID, UserID: user1})
+	afterLikeCount := countPostLikeUserByPostID(postID)
+
+	// likeしているユーザー数が1だけ減っている事をテスト
+	assert.Equal(t, afterLikeCount, beforeLikeCount-1)
 }
 
 func makePostTags() []model.PostTag {
@@ -229,4 +311,5 @@ func initTable() {
 	DB.Delete(&model.Post{})
 	DB.Delete(&model.Tag{})
 	DB.Delete(&model.PostTag{})
+	DB.Delete(&model.PostLikeUser{})
 }

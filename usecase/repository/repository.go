@@ -10,6 +10,8 @@ type PostRepository interface {
 	DeleteByID(id uint32) error
 	List() ([]model.JoinPost, error)
 	Update(*model.JoinPost) (*model.JoinPost, error)
+	Like(*model.PostLikeUser) (*model.PostLikeUser, error)
+	NotLike(*model.PostLikeUser) (*model.PostLikeUser, error)
 }
 
 // TagRepository タグサービスの抽象定義

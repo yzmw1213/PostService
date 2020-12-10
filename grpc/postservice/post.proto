@@ -6,15 +6,16 @@ option go_package = ".;postservice";
 
 message Post {
   uint32 id = 1;
+  string title=2;
+  string content =3;
   // uint32 status = 2;
-  string title=3;
-  string content =4;
-  repeated uint32 tags=5;
   // string photo_url =7;
-  uint32 createUser_id =6;
-  string createUser_name =7;
-  uint32 updateUser_id =8;
-  string updateUser_name =9;
+  uint32 create_user_id =4;
+  string create_user_name =5;
+  uint32 update_user_id =6;
+  string update_user_name =7;
+  repeated uint32 tags=8;
+  repeated uint32 like_users=9;
 }
 
 // レスポンスのステータス
@@ -46,6 +47,24 @@ message UpdatePostResponse {
   ResponseStatus status=1;
 }
 
+message LikePostRequest {
+  uint32 id=1;
+  uint32 user_id=2;
+}
+
+message LikePostResponse {
+  ResponseStatus status=1;
+}
+
+message NotLikePostRequest {
+  uint32 id=1;
+  uint32 user_id=2;
+}
+
+message NotLikePostResponse {
+  ResponseStatus status=1;
+}
+
 message DeletePostRequest {
   uint32 id=1;
 }
@@ -65,6 +84,8 @@ service PostService {
   rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
   rpc ReadPost(ReadPostRequest) returns (ReadPostResponse);
   rpc UpdatePost(UpdatePostRequest) returns (UpdatePostResponse);
+  rpc LikePost(LikePostRequest)returns (LikePostResponse);
+  rpc NotLikePost(NotLikePostRequest)returns (NotLikePostResponse);
   rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
   rpc ListPost(ListPostRequest) returns (ListPostResponse);
 }

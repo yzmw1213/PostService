@@ -17,13 +17,15 @@ import (
 )
 
 var (
-	err      error
-	post     model.Post
-	posts    []model.Post
-	postTag  model.PostTag
-	postTags []model.PostTag
-	rows     *sql.Rows
-	validate *validator.Validate
+	err       error
+	post      model.Post
+	posts     []model.Post
+	postTag   model.PostTag
+	postTags  []model.PostTag
+	likeUser  model.PostLikeUser
+	likeUsers []model.PostLikeUser
+	rows      *sql.Rows
+	validate  *validator.Validate
 )
 
 // PostInteractor 投稿サービスを提供するメソッド群
@@ -32,7 +34,7 @@ type PostInteractor struct{}
 var _ repository.PostRepository = (*PostInteractor)(nil)
 
 // Create 投稿1件を作成
-func (b *PostInteractor) Create(postData *model.JoinPost) (*model.JoinPost, error) {
+func (p *PostInteractor) Create(postData *model.JoinPost) (*model.JoinPost, error) {
 	validate = validator.New()
 	post := postData.Post
 	tags := postData.PostTags
@@ -66,7 +68,7 @@ func (b *PostInteractor) Create(postData *model.JoinPost) (*model.JoinPost, erro
 }
 
 // DeleteByID 指定されたIDに対する投稿1件を削除
-func (b *PostInteractor) DeleteByID(id uint32) error {
+func (p *PostInteractor) DeleteByID(id uint32) error {
 	var post model.Post
 	var postTag model.PostTag
 
@@ -88,7 +90,7 @@ func (b *PostInteractor) DeleteByID(id uint32) error {
 }
 
 // List 投稿を全件取得
-func (b *PostInteractor) List() ([]model.JoinPost, error) {
+func (p *PostInteractor) List() ([]model.JoinPost, error) {
 	rows, err := listAll(context.Background())
 	if err != nil {
 		fmt.Println("Error happened")
@@ -100,23 +102,19 @@ func (b *PostInteractor) List() ([]model.JoinPost, error) {
 
 // listAll 全件取得
 func listAll(ctx context.Context) ([]model.Post, error) {
+	var posts []model.Post
 	DB := db.GetDB()
 
-	rows, err := DB.Find(&posts).Rows()
+	_, err := DB.Find(&posts).Rows()
 	if err != nil {
 		log.Println("Error occured")
 		return nil, err
-	}
-
-	for rows.Next() {
-		DB.ScanRows(rows, &post)
-		posts = append(posts, post)
 	}
 	return posts, nil
 }
 
 // Update 投稿を更新する
-func (b *PostInteractor) Update(postData *model.JoinPost) (*model.JoinPost, error) {
+func (p *PostInteractor) Update(postData *model.JoinPost) (*model.JoinPost, error) {
 	validate = validator.New()
 	post := postData.Post
 	tags := postData.PostTags
@@ -152,7 +150,7 @@ func (b *PostInteractor) Update(postData *model.JoinPost) (*model.JoinPost, erro
 }
 
 // GetByID IDを元に投稿を1件取得する
-func (b *PostInteractor) GetByID(ID uint32) (model.Post, error) {
+func (p *PostInteractor) GetByID(ID uint32) (model.Post, error) {
 	DB := db.GetDB()
 	row := DB.First(&post, ID)
 	if err := row.Error; err != nil {
@@ -164,8 +162,8 @@ func (b *PostInteractor) GetByID(ID uint32) (model.Post, error) {
 }
 
 // GetJoinPostByID IDを元に投稿、紐付け情報を1件取得する
-func (b *PostInteractor) GetJoinPostByID(ID uint32) (model.JoinPost, error) {
-	post, err := b.GetByID(ID)
+func (p *PostInteractor) GetJoinPostByID(ID uint32) (model.JoinPost, error) {
+	post, err := p.GetByID(ID)
 
 	if err != nil {
 		log.Printf("Error happend while Read for ID: %v\n", ID)
@@ -179,6 +177,24 @@ func (b *PostInteractor) GetJoinPostByID(ID uint32) (model.JoinPost, error) {
 	}
 
 	return joinPost, nil
+}
+
+// Like 投稿のお気に入り
+func (p *PostInteractor) Like(postData *model.PostLikeUser) (*model.PostLikeUser, error) {
+	DB := db.GetDB()
+	if err := DB.Create(postData).Error; err != nil {
+		return postData, err
+	}
+	return postData, nil
+}
+
+// NotLike 投稿のお気に入りの取り消し
+func (p *PostInteractor) NotLike(postData *model.PostLikeUser) (*model.PostLikeUser, error) {
+	DB := db.GetDB()
+	if err := DB.Where("post_id = ? ", postData.PostID).Where("user_id = ? ", postData.UserID).Delete(postData).Error; err != nil {
+		return postData, err
+	}
+	return postData, nil
 }
 
 // listPostTagsByID PostIDを元にpostTagを検索し返す
@@ -198,6 +214,23 @@ func listPostTagsByID(ID uint32) ([]model.PostTag, error) {
 	return postTagList, nil
 }
 
+// listPostLikeUsersByID PostIDを元にお気に入りしているユーザーを検索し返す
+func listPostLikeUsersByID(ID uint32) ([]model.PostLikeUser, error) {
+	var postLikeUserList []model.PostLikeUser
+	DB := db.GetDB()
+	rows, err := DB.Where("post_id = ?", ID).Find(&likeUsers).Rows()
+	if err != nil {
+		log.Println("Error occured")
+		return nil, err
+	}
+	for rows.Next() {
+		DB.ScanRows(rows, &likeUser)
+		postLikeUserList = append(postLikeUserList, likeUser)
+	}
+
+	return postLikeUserList, nil
+}
+
 func createJoinPosts(posts []model.Post) ([]model.JoinPost, error) {
 	var joinPosts []model.JoinPost
 	// 全ユーザーをUserServiceから取得
@@ -205,8 +238,8 @@ func createJoinPosts(posts []model.Post) ([]model.JoinPost, error) {
 	if err != nil {
 		return []model.JoinPost{}, err
 	}
-
 	for _, post := range posts {
+		var likeUsers []model.User
 		// 投稿者のユーザー情報
 		createUser := users[post.CreateUserID]
 
@@ -218,10 +251,13 @@ func createJoinPosts(posts []model.Post) ([]model.JoinPost, error) {
 		}
 		// Likeしているユーザー
 		// post.IDより取得
+		postLikeUsers, err := listPostLikeUsersByID(post.ID)
 
-		// エントリーしているユーザー
+		for _, user := range postLikeUsers {
+			likeUsers = append(likeUsers, users[user.UserID])
+		}
 		// post.IDより取得
-		joinPost := makeJoinPost(post, createUser, postTags)
+		joinPost := makeJoinPost(post, createUser, postTags, likeUsers)
 		joinPosts = append(joinPosts, joinPost)
 	}
 
@@ -236,11 +272,12 @@ func createJoinPostSingle(post model.Post) (model.JoinPost, error) {
 	return joinPost[0], err
 }
 
-func makeJoinPost(post model.Post, createUser model.User, postTags []model.PostTag) model.JoinPost {
+func makeJoinPost(post model.Post, createUser model.User, postTags []model.PostTag, likeUsers []model.User) model.JoinPost {
 	return model.JoinPost{
-		Post:     &post,
-		User:     &createUser,
-		PostTags: postTags,
+		Post:          &post,
+		User:          &createUser,
+		PostTags:      postTags,
+		PostLikeUsers: likeUsers,
 	}
 }
 
@@ -251,10 +288,20 @@ func countPostTag() int {
 	return count
 }
 
+// countPostTagByPostID IDを元に投稿に付けられているタグの件数を取得する
 func countPostTagByPostID(ID uint32) int {
 	var count int
 	DB := db.GetDB()
 	DB.Where("post_id = ?", ID).Model(&postTag).Count(&count)
+
+	return count
+}
+
+// countPostLikeUserByPostID IDを元に投稿にお気に入りしているユーザー数を取得する
+func countPostLikeUserByPostID(ID uint32) int {
+	var count int
+	DB := db.GetDB()
+	DB.Where("post_id = ?", ID).Model(&likeUser).Count(&count)
 
 	return count
 }

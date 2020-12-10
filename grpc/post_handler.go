@@ -13,6 +13,10 @@ const (
 	StatusCreatePostSuccess string = "POST_CREATE_SUCCESS"
 	// StatusUpdatePostSuccess 投稿更新成功ステータス
 	StatusUpdatePostSuccess string = "POST_UPDATE_SUCCESS"
+	// StatusLikePostSuccess 投稿お気に入り成功ステータス
+	StatusLikePostSuccess string = "POST_LIKE_SUCCESS"
+	// StatusNotLikePostSuccess 投稿お気に入り取り消し成功ステータス
+	StatusNotLikePostSuccess string = "POST_NOTLIKE_SUCCESS"
 	// StatusDeletePostSuccess 投稿削除成功ステータス
 	StatusDeletePostSuccess string = "POST_DELETE_SUCCESS"
 	// StatusPostNotExists 指定した投稿の登録がない時のエラーステータス
@@ -95,6 +99,36 @@ func (s server) UpdatePost(ctx context.Context, req *postservice.UpdatePostReque
 	return s.makeUpdatePostResponse(StatusUpdatePostSuccess), nil
 }
 
+func (s server) LikePost(ctx context.Context, req *postservice.LikePostRequest) (*postservice.LikePostResponse, error) {
+	log.Println("LikePost")
+	log.Println("user", req.GetUserId())
+	log.Println("post", req.GetId())
+	postLikeUser := &model.PostLikeUser{
+		PostID: req.GetId(),
+		UserID: req.GetUserId(),
+	}
+
+	if _, err := s.PostUsecase.Like(postLikeUser); err != nil {
+		return nil, err
+	}
+	return s.makeLikePostResponse(StatusLikePostSuccess), nil
+}
+
+func (s server) NotLikePost(ctx context.Context, req *postservice.NotLikePostRequest) (*postservice.NotLikePostResponse, error) {
+	log.Println("NotLikePost")
+	log.Println("user", req.GetUserId())
+	log.Println("post", req.GetId())
+	postLikeUser := &model.PostLikeUser{
+		PostID: req.GetId(),
+		UserID: req.GetUserId(),
+	}
+
+	if _, err := s.PostUsecase.NotLike(postLikeUser); err != nil {
+		return nil, err
+	}
+	return s.makeNotLikePostResponse(StatusNotLikePostSuccess), nil
+}
+
 func makePostModel(gPost *postservice.Post) *model.Post {
 	post := &model.Post{
 		ID: gPost.GetId(),
@@ -122,6 +156,7 @@ func makePostTagModel(gPost *postservice.Post) []model.PostTag {
 
 func makeGrpcPost(post *model.JoinPost) *postservice.Post {
 	var tags []uint32
+	var likeUsers []uint32
 	gPost := &postservice.Post{
 		Id: post.Post.ID,
 		// Status:       post.Status,
@@ -131,11 +166,18 @@ func makeGrpcPost(post *model.JoinPost) *postservice.Post {
 		CreateUserName: post.User.UserName,
 		UpdateUserId:   post.Post.UpdateUserID,
 	}
-
+	// タグ
 	for _, postTag := range post.PostTags {
 		tags = append(tags, postTag.TagID)
 	}
 	gPost.Tags = tags
+
+	// お気に入りユーザー
+	for _, user := range post.PostLikeUsers {
+		likeUsers = append(likeUsers, user.ID)
+	}
+	gPost.LikeUsers = likeUsers
+
 	return gPost
 }
 
@@ -166,6 +208,30 @@ func (s server) makeCreatePostResponse(statusCode string) *postservice.CreatePos
 // makeUpdatePostResponse UpdatePostメソッドのresponseを生成し返す
 func (s server) makeUpdatePostResponse(statusCode string) *postservice.UpdatePostResponse {
 	res := &postservice.UpdatePostResponse{}
+	if statusCode != "" {
+		responseStatus := &postservice.ResponseStatus{
+			Code: statusCode,
+		}
+		res.Status = responseStatus
+	}
+	return res
+}
+
+// makeLikePostResponse LikePostメソッドのresponseを生成し返す
+func (s server) makeLikePostResponse(statusCode string) *postservice.LikePostResponse {
+	res := &postservice.LikePostResponse{}
+	if statusCode != "" {
+		responseStatus := &postservice.ResponseStatus{
+			Code: statusCode,
+		}
+		res.Status = responseStatus
+	}
+	return res
+}
+
+// makeNotLikePostResponse NotLikePostメソッドのresponseを生成し返す
+func (s server) makeNotLikePostResponse(statusCode string) *postservice.NotLikePostResponse {
+	res := &postservice.NotLikePostResponse{}
 	if statusCode != "" {
 		responseStatus := &postservice.ResponseStatus{
 			Code: statusCode,

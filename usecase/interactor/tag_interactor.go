@@ -93,7 +93,6 @@ func (i *TagInteractor) ListAllValidTag() ([]model.Tag, error) {
 	DB := db.GetDB()
 	var tags []model.Tag
 	err := DB.Where("status = ?", ValidTagStatus).Select("tags.id, tags.tag_name").Find(&tags).Error
-	log.Println("tags", tags)
 	if err != nil {
 		fmt.Println("Error happened")
 		return []model.Tag{}, err

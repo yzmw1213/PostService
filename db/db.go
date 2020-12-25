@@ -88,4 +88,5 @@ func autoMigration() {
 	DB.AutoMigrate(&model.Tag{})
 	DB.AutoMigrate(&model.PostTag{})
 	DB.AutoMigrate(&model.PostLikeUser{})
+	DB.AutoMigrate(&model.Comment{})
 }

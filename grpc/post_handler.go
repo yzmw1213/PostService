@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"log"
 
 	"github.com/yzmw1213/PostService/domain/model"
 	"github.com/yzmw1213/PostService/grpc/postservice"
@@ -17,6 +16,10 @@ const (
 	StatusLikePostSuccess string = "POST_LIKE_SUCCESS"
 	// StatusNotLikePostSuccess 投稿お気に入り取り消し成功ステータス
 	StatusNotLikePostSuccess string = "POST_NOTLIKE_SUCCESS"
+	// StatusCreateCommentSuccess コメント作成成功ステータス
+	StatusCreateCommentSuccess string = "COMMENT_CREATE_SUCCESS"
+	// StatusUpdateCommentSuccess コメント更新成功ステータス
+	StatusUpdateCommentSuccess string = "COMMENT_UPDATE_SUCCESS"
 	// StatusDeletePostSuccess 投稿削除成功ステータス
 	StatusDeletePostSuccess string = "POST_DELETE_SUCCESS"
 	// StatusPostNotExists 指定した投稿の登録がない時のエラーステータス
@@ -25,6 +28,8 @@ const (
 	StatusPostTitleStringCount string = "POST_TITLE_COUNT_ERROR"
 	// StatusPostContentStringCount 投稿内容文字数が無効のエラーステータス
 	StatusPostContentStringCount string = "POST_CONTENT_COUNT_ERROR"
+	// StatusCommentContentStringCount 投稿内容文字数が無効のエラーステータス
+	StatusCommentContentStringCount string = "POST_CONTENT_COUNT_ERROR"
 )
 
 func (s server) CreatePost(ctx context.Context, req *postservice.CreatePostRequest) (*postservice.CreatePostResponse, error) {
@@ -100,9 +105,6 @@ func (s server) UpdatePost(ctx context.Context, req *postservice.UpdatePostReque
 }
 
 func (s server) LikePost(ctx context.Context, req *postservice.LikePostRequest) (*postservice.LikePostResponse, error) {
-	log.Println("LikePost")
-	log.Println("user", req.GetUserId())
-	log.Println("post", req.GetId())
 	postLikeUser := &model.PostLikeUser{
 		PostID: req.GetId(),
 		UserID: req.GetUserId(),
@@ -115,9 +117,6 @@ func (s server) LikePost(ctx context.Context, req *postservice.LikePostRequest) 
 }
 
 func (s server) NotLikePost(ctx context.Context, req *postservice.NotLikePostRequest) (*postservice.NotLikePostResponse, error) {
-	log.Println("NotLikePost")
-	log.Println("user", req.GetUserId())
-	log.Println("post", req.GetId())
 	postLikeUser := &model.PostLikeUser{
 		PostID: req.GetId(),
 		UserID: req.GetUserId(),
@@ -127,6 +126,31 @@ func (s server) NotLikePost(ctx context.Context, req *postservice.NotLikePostReq
 		return nil, err
 	}
 	return s.makeNotLikePostResponse(StatusNotLikePostSuccess), nil
+}
+
+func (s server) CreateComment(ctx context.Context, req *postservice.CreateCommentRequest) (*postservice.CreateCommentResponse, error) {
+	comment := makeComment(req.Comment)
+	if _, err := s.PostUsecase.CreateComment(comment); err != nil {
+		return nil, err
+	}
+	return s.makeCreateCommentResponse(StatusCreateCommentSuccess), nil
+}
+
+func (s server) UpdateComment(ctx context.Context, req *postservice.UpdateCommentRequest) (*postservice.UpdateCommentResponse, error) {
+	comment := makeComment(req.Comment)
+	if _, err := s.PostUsecase.UpdateComment(comment); err != nil {
+		return nil, err
+	}
+	return s.makeUpdateCommentResponse(StatusUpdateCommentSuccess), nil
+}
+
+func (s server) DeleteComment(ctx context.Context, req *postservice.DeleteCommentRequest) (*postservice.DeleteCommentResponse, error) {
+	id := req.GetId()
+
+	if err := s.PostUsecase.DeleteComment(id); err != nil {
+		return nil, err
+	}
+	return s.makeDeleteCommentResponse(StatusDeletePostSuccess), nil
 }
 
 func makePostModel(gPost *postservice.Post) *model.Post {
@@ -150,13 +174,24 @@ func makePostTagModel(gPost *postservice.Post) []model.PostTag {
 			TagID:  tagID,
 		})
 	}
-	log.Println("postTags", postTags)
 	return postTags
+}
+
+func makeComment(gComment *postservice.Comment) *model.Comment {
+	comment := &model.Comment{
+		CommentID:      gComment.Id,
+		PostID:         gComment.PostId,
+		CreateUserID:   gComment.CreateUserId,
+		CommentContent: gComment.Content,
+	}
+
+	return comment
 }
 
 func makeGrpcPost(post *model.JoinPost) *postservice.Post {
 	var tags []uint32
 	var likeUsers []uint32
+	var postComments []*postservice.Comment
 	gPost := &postservice.Post{
 		Id: post.Post.ID,
 		// Status:       post.Status,
@@ -178,7 +213,24 @@ func makeGrpcPost(post *model.JoinPost) *postservice.Post {
 	}
 	gPost.LikeUsers = likeUsers
 
+	// コメント
+	for _, comment := range post.Comments {
+		gcomment := makeGrpcComment(comment)
+		postComments = append(postComments, gcomment)
+	}
+	gPost.Comments = postComments
+
 	return gPost
+}
+
+func makeGrpcComment(jc model.JoinComment) *postservice.Comment {
+	return &postservice.Comment{
+		Id:             jc.Comment.CommentID,
+		PostId:         jc.Comment.PostID,
+		CreateUserId:   jc.Comment.CreateUserID,
+		CreateUserName: jc.CreateUser.UserName,
+		Content:        jc.Comment.CommentContent,
+	}
 }
 
 func createPostRequest(post *postservice.Post) *postservice.CreatePostRequest {
@@ -244,6 +296,42 @@ func (s server) makeNotLikePostResponse(statusCode string) *postservice.NotLikeP
 // makeDeletePostResponse DeletePostメソッドのresponseを生成し返す
 func (s server) makeDeletePostResponse(statusCode string) *postservice.DeletePostResponse {
 	res := &postservice.DeletePostResponse{}
+	if statusCode != "" {
+		responseStatus := &postservice.ResponseStatus{
+			Code: statusCode,
+		}
+		res.Status = responseStatus
+	}
+	return res
+}
+
+// makeCreateCommentResponse CreateCommentメソッドのresponseを生成し返す
+func (s server) makeCreateCommentResponse(statusCode string) *postservice.CreateCommentResponse {
+	res := &postservice.CreateCommentResponse{}
+	if statusCode != "" {
+		responseStatus := &postservice.ResponseStatus{
+			Code: statusCode,
+		}
+		res.Status = responseStatus
+	}
+	return res
+}
+
+// makeUpdateCommentResponse UpdateCommentメソッドのresponseを生成し返す
+func (s server) makeUpdateCommentResponse(statusCode string) *postservice.UpdateCommentResponse {
+	res := &postservice.UpdateCommentResponse{}
+	if statusCode != "" {
+		responseStatus := &postservice.ResponseStatus{
+			Code: statusCode,
+		}
+		res.Status = responseStatus
+	}
+	return res
+}
+
+// makeDeleteCommentResponse DeleteCommentメソッドのresponseを生成し返す
+func (s server) makeDeleteCommentResponse(statusCode string) *postservice.DeleteCommentResponse {
+	res := &postservice.DeleteCommentResponse{}
 	if statusCode != "" {
 		responseStatus := &postservice.ResponseStatus{
 			Code: statusCode,

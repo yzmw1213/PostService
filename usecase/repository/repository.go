@@ -12,6 +12,9 @@ type PostRepository interface {
 	Update(*model.JoinPost) (*model.JoinPost, error)
 	Like(*model.PostLikeUser) (*model.PostLikeUser, error)
 	NotLike(*model.PostLikeUser) (*model.PostLikeUser, error)
+	CreateComment(*model.Comment) (*model.Comment, error)
+	UpdateComment(*model.Comment) (*model.Comment, error)
+	DeleteComment(id uint32) error
 }
 
 // TagRepository タグサービスの抽象定義

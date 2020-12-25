@@ -22,6 +22,8 @@ var (
 	posts     []model.Post
 	postTag   model.PostTag
 	postTags  []model.PostTag
+	comment   model.Comment
+	comments  []model.Comment
 	likeUser  model.PostLikeUser
 	likeUsers []model.PostLikeUser
 	rows      *sql.Rows
@@ -161,6 +163,17 @@ func (p *PostInteractor) GetByID(ID uint32) (model.Post, error) {
 	return post, nil
 }
 
+func getCommentByID(commentID uint32) (model.Comment, error) {
+	DB := db.GetDB()
+	row := DB.First(&comment, commentID)
+	if err := row.Error; err != nil {
+		log.Printf("Error happend while Read for commentID: %v\n", commentID)
+		return model.Comment{}, err
+	}
+	DB.Table(db.PostTableName).Scan(row)
+	return comment, nil
+}
+
 // GetJoinPostByID IDを元に投稿、紐付け情報を1件取得する
 func (p *PostInteractor) GetJoinPostByID(ID uint32) (model.JoinPost, error) {
 	post, err := p.GetByID(ID)
@@ -197,6 +210,51 @@ func (p *PostInteractor) NotLike(postData *model.PostLikeUser) (*model.PostLikeU
 	return postData, nil
 }
 
+// CreateComment コメント作成
+func (p *PostInteractor) CreateComment(postData *model.Comment) (*model.Comment, error) {
+	validate = validator.New()
+	DB := db.GetDB()
+
+	if err := validate.Struct(postData); err != nil {
+		log.Println("comment validation error", err)
+
+		return postData, err
+	}
+
+	if err := DB.Create(postData).Error; err != nil {
+		return postData, err
+	}
+	return postData, nil
+}
+
+// UpdateComment コメント更新
+func (p *PostInteractor) UpdateComment(postData *model.Comment) (*model.Comment, error) {
+	validate = validator.New()
+	DB := db.GetDB()
+
+	if err := validate.Struct(postData); err != nil {
+		return postData, err
+	}
+
+	if err := DB.Save(postData).Error; err != nil {
+		return postData, err
+	}
+	return postData, nil
+}
+
+// DeleteComment 指定されたIDに対するコメント1件を削除
+func (p *PostInteractor) DeleteComment(id uint32) error {
+	var comment model.Comment
+	DB := db.GetDB()
+
+	// 指定されたPostIDのPostを削除
+	if err := DB.Where("comment_id = ?", id).Delete(&comment).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // listPostTagsByID PostIDを元にpostTagを検索し返す
 func listPostTagsByID(ID uint32) ([]model.PostTag, error) {
 	var postTagList []model.PostTag
@@ -212,6 +270,23 @@ func listPostTagsByID(ID uint32) ([]model.PostTag, error) {
 	}
 
 	return postTagList, nil
+}
+
+// listCommentsByID PostIDを元にcommentを検索し返す
+func listCommentsByID(ID uint32) ([]model.Comment, error) {
+	var commentList []model.Comment
+	DB := db.GetDB()
+	rows, err := DB.Order("created_at").Where("post_id = ?", ID).Find(&comments).Rows()
+	if err != nil {
+		log.Println("Error occured")
+		return nil, err
+	}
+	for rows.Next() {
+		DB.ScanRows(rows, &comment)
+		commentList = append(commentList, comment)
+	}
+
+	return commentList, nil
 }
 
 // listPostLikeUsersByID PostIDを元にお気に入りしているユーザーを検索し返す
@@ -240,6 +315,7 @@ func createJoinPosts(posts []model.Post) ([]model.JoinPost, error) {
 	}
 	for _, post := range posts {
 		var likeUsers []model.User
+		var joinComments []model.JoinComment
 		// 投稿者のユーザー情報
 		createUser := users[post.CreateUserID]
 
@@ -252,12 +328,19 @@ func createJoinPosts(posts []model.Post) ([]model.JoinPost, error) {
 		// Likeしているユーザー
 		// post.IDより取得
 		postLikeUsers, err := listPostLikeUsersByID(post.ID)
-
 		for _, user := range postLikeUsers {
 			likeUsers = append(likeUsers, users[user.UserID])
 		}
+
+		// コメントをpost.IDより取得
+		comments, err := listCommentsByID(post.ID)
+		for _, comment := range comments {
+			createUser := users[comment.CreateUserID]
+			joinComment := model.JoinComment{Comment: comment, CreateUser: createUser}
+			joinComments = append(joinComments, joinComment)
+		}
 		// post.IDより取得
-		joinPost := makeJoinPost(post, createUser, postTags, likeUsers)
+		joinPost := makeJoinPost(post, createUser, postTags, likeUsers, joinComments)
 		joinPosts = append(joinPosts, joinPost)
 	}
 
@@ -272,12 +355,13 @@ func createJoinPostSingle(post model.Post) (model.JoinPost, error) {
 	return joinPost[0], err
 }
 
-func makeJoinPost(post model.Post, createUser model.User, postTags []model.PostTag, likeUsers []model.User) model.JoinPost {
+func makeJoinPost(post model.Post, createUser model.User, postTags []model.PostTag, likeUsers []model.User, comments []model.JoinComment) model.JoinPost {
 	return model.JoinPost{
 		Post:          &post,
 		User:          &createUser,
 		PostTags:      postTags,
 		PostLikeUsers: likeUsers,
+		Comments:      comments,
 	}
 }
 
@@ -302,6 +386,15 @@ func countPostLikeUserByPostID(ID uint32) int {
 	var count int
 	DB := db.GetDB()
 	DB.Where("post_id = ?", ID).Model(&likeUser).Count(&count)
+
+	return count
+}
+
+// countCommentByPostID IDを元に投稿へのコメント数を取得する
+func countCommentByPostID(ID uint32) int {
+	var count int
+	DB := db.GetDB()
+	DB.Where("post_id = ?", ID).Model(&comment).Count(&count)
 
 	return count
 }

@@ -9,4 +9,6 @@ type JoinPost struct {
 	PostTags []PostTag
 	// 紐付けられたタグ情報
 	PostLikeUsers []User
+	// コメント
+	Comments []JoinComment
 }

@@ -16,6 +16,15 @@ message Post {
   string update_user_name =7;
   repeated uint32 tags=8;
   repeated uint32 like_users=9;
+  repeated Comment comments=10;
+}
+
+message Comment {
+  uint32 id =1;
+  uint32 post_id =2;
+  uint32 create_user_id=3;
+  string create_user_name=4;
+  string content=5;
 }
 
 // レスポンスのステータス
@@ -80,6 +89,30 @@ message ListPostResponse {
   repeated Post post=1;
 }
 
+message CreateCommentRequest {
+  Comment comment=1;
+}
+
+message CreateCommentResponse {
+  ResponseStatus status=1;
+}
+
+message UpdateCommentRequest {
+  Comment comment=1;
+}
+
+message UpdateCommentResponse {
+  ResponseStatus status=1;
+}
+
+message DeleteCommentRequest {
+  uint32 id=1;
+}
+
+message DeleteCommentResponse {
+  ResponseStatus status=1;
+}
+
 service PostService {
   rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
   rpc ReadPost(ReadPostRequest) returns (ReadPostResponse);
@@ -88,4 +121,7 @@ service PostService {
   rpc NotLikePost(NotLikePostRequest)returns (NotLikePostResponse);
   rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
   rpc ListPost(ListPostRequest) returns (ListPostResponse);
+  rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse);
+  rpc UpdateComment(UpdateCommentRequest) returns (UpdateCommentResponse);
+  rpc DeleteComment(DeleteCommentRequest) returns (DeleteCommentResponse);
 }

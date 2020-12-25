@@ -48,8 +48,6 @@ func (s server) DeleteTag(ctx context.Context, req *tagservice.DeleteTagRequest)
 		log.Println("tag not exists")
 		return s.makeDeleteTagResponse(StatusTagNotExists), nil
 	}
-	log.Println("tag exists")
-	log.Println(id)
 
 	err = s.TagUsecase.DeleteByID(id)
 	if err != nil {
@@ -178,7 +176,6 @@ func (s server) tagExistsByTagName(tagName string) bool {
 // tagExistsByTagID　IDが一致するタグの登録があるかの判定
 func (s server) tagExistsByTagID(tagID uint32) bool {
 	tag, _ := s.TagUsecase.GetTagByTagID(tagID)
-	log.Println(tag)
 	if tag.ID == 0 {
 		return false
 	}

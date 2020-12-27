@@ -1,7 +1,7 @@
 package interactor
 
 var (
-	testPostUserID     uint32 = 123456
+	testPostUserID     uint32 = 0
 	testTitle          string = "件名が入ります件名が入ります件名が入ります件名が入ります件名が入"
 	testContent               = "内容が入ります内容が入ります内容が入ります内容が入ります内容が入ります内容が入ります内容が入ります内容が入ります内容が入ります内容が入ります内容が入ります内容が入ります内容が入ります内容が入ります内容が入ります内容が入ります内容が入ります内容が入ります内容が入ります内容が入ります"
 	testTagName               = "テストタグ"

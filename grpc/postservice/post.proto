@@ -83,10 +83,13 @@ message DeletePostResponse {
 }
 
 message ListPostRequest {
+  string condition=1;
+  uint32 id=2;
 }
 
 message ListPostResponse {
-  repeated Post post=1;
+  uint32 count=1;
+  repeated Post post=2;
 }
 
 message CreateCommentRequest {

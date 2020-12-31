@@ -387,6 +387,43 @@ func TestDeleteComment(t *testing.T) {
 	assert.Equal(t, 0, afterCommentCount)
 }
 
+func TestGetAllPosts(t *testing.T) {
+	var i PostInteractor
+	posts, err := i.List("all", 0)
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, 0, len(posts))
+}
+
+func TestGetPostsByUserID(t *testing.T) {
+	var i PostInteractor
+	posts, err := i.List("create", user1)
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, 0, len(posts))
+
+	for _, post := range posts {
+		assert.Equal(t, user1, post.Post.CreateUserID)
+	}
+}
+
+func TestGetPostsByLikeUserID(t *testing.T) {
+	var i PostInteractor
+	posts, err := i.List("like", user2)
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, 0, len(posts))
+}
+
+func TestGetPostsByTagID(t *testing.T) {
+	var i PostInteractor
+
+	posts, err := i.List("tag", one)
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, 0, len(posts))
+
+	posts, err = i.List("tag", four)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 1, len(posts))
+}
+
 func makePostTags() []model.PostTag {
 	return []model.PostTag{
 		{

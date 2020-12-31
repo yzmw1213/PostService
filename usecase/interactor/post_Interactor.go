@@ -92,8 +92,22 @@ func (p *PostInteractor) DeleteByID(id uint32) error {
 }
 
 // List 投稿を全件取得
-func (p *PostInteractor) List() ([]model.JoinPost, error) {
-	rows, err := listAll(context.Background())
+func (p *PostInteractor) List(condition string, id uint32) ([]model.JoinPost, error) {
+	var rows []model.Post
+	switch condition {
+	case "all":
+		rows, err = getAllPosts(context.Background())
+		break
+	case "create":
+		rows, err = getPostsByCreateUserID(context.Background(), id)
+		break
+	case "like":
+		rows, err = getPostsByLikeUserID(context.Background(), id)
+		break
+	case "tag":
+		rows, err = getPostsByTagID(context.Background(), id)
+		break
+	}
 	if err != nil {
 		fmt.Println("Error happened")
 		return []model.JoinPost{}, err
@@ -102,12 +116,59 @@ func (p *PostInteractor) List() ([]model.JoinPost, error) {
 	return createJoinPosts(rows)
 }
 
-// listAll 全件取得
-func listAll(ctx context.Context) ([]model.Post, error) {
+// getAllPosts 全件取得
+func getAllPosts(ctx context.Context) ([]model.Post, error) {
 	var posts []model.Post
 	DB := db.GetDB()
 
 	_, err := DB.Find(&posts).Rows()
+	// if err != nil {
+	// 	log.Println("Error occured")
+	// 	return nil, err
+	// }
+	return posts, err
+}
+
+// getPostsByCreateUserID 作成ユーザーIDで検索
+func getPostsByCreateUserID(ctx context.Context, id uint32) ([]model.Post, error) {
+	var posts []model.Post
+	DB := db.GetDB()
+
+	_, err := DB.Where("create_user_id = ?", id).Find(&posts).Rows()
+	if err != nil {
+		log.Println("Error occured")
+		return nil, err
+	}
+	return posts, nil
+}
+
+// getPostsByLikeUserID いいねしたユーザーIDで検索
+func getPostsByLikeUserID(ctx context.Context, id uint32) ([]model.Post, error) {
+	var posts []model.Post
+	DB := db.GetDB()
+
+	rows, err := DB.Table("posts").Where("post_like_users.user_id = ?", id).Select("posts.id, posts.title, posts.content, posts.create_user_id, posts.update_user_id").Joins("inner join post_like_users on post_like_users.post_id = posts.id").Rows()
+	for rows.Next() {
+		DB.ScanRows(rows, &post)
+		posts = append(posts, post)
+	}
+	if err != nil {
+		log.Println("Error occured")
+		return nil, err
+	}
+	return posts, nil
+}
+
+// getPostsByTagID タグIDで検索
+func getPostsByTagID(ctx context.Context, id uint32) ([]model.Post, error) {
+	var posts []model.Post
+	DB := db.GetDB()
+
+	rows, err := DB.Table("posts").Where("post_tags.tag_id = ?", id).Select("posts.id, posts.title, posts.content, posts.create_user_id, posts.update_user_id").Joins("inner join post_tags on post_tags.post_id = posts.id").Rows()
+	for rows.Next() {
+		DB.ScanRows(rows, &post)
+		posts = append(posts, post)
+	}
 	if err != nil {
 		log.Println("Error occured")
 		return nil, err

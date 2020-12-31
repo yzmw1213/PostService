@@ -62,19 +62,19 @@ func (s server) DeletePost(ctx context.Context, req *postservice.DeletePostReque
 }
 
 func (s server) ListPost(ctx context.Context, req *postservice.ListPostRequest) (*postservice.ListPostResponse, error) {
-	rows, err := s.PostUsecase.List()
-	if err != nil {
-		return nil, err
-	}
 	var posts []*postservice.Post
+	condition := req.GetCondition()
+	ID := req.GetId()
+
+	rows, err := s.PostUsecase.List(condition, ID)
+	if err != nil {
+		return s.makeListPostResponse(posts), err
+	}
 	for _, post := range rows {
 		post := makeGrpcPost(&post)
 		posts = append(posts, post)
 	}
-	res := &postservice.ListPostResponse{
-		Post: posts,
-	}
-	return res, nil
+	return s.makeListPostResponse(posts), nil
 }
 
 func (s server) ReadPost(ctx context.Context, req *postservice.ReadPostRequest) (*postservice.ReadPostResponse, error) {
@@ -265,6 +265,15 @@ func (s server) makeUpdatePostResponse(statusCode string) *postservice.UpdatePos
 			Code: statusCode,
 		}
 		res.Status = responseStatus
+	}
+	return res
+}
+
+// makeListPostResponse ListPostメソッドのresponseを生成し返す
+func (s server) makeListPostResponse(posts []*postservice.Post) *postservice.ListPostResponse {
+	res := &postservice.ListPostResponse{
+		Count: uint32(len(posts)),
+		Post:  posts,
 	}
 	return res
 }

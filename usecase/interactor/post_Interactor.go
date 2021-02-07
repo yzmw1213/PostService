@@ -95,9 +95,6 @@ func (p *PostInteractor) DeleteByID(id uint32) error {
 func (p *PostInteractor) List(condition string, id uint32) ([]model.JoinPost, error) {
 	var rows []model.Post
 	switch condition {
-	case "all":
-		rows, err = getAllPosts(context.Background())
-		break
 	case "create":
 		rows, err = getPostsByCreateUserID(context.Background(), id)
 		break
@@ -107,6 +104,8 @@ func (p *PostInteractor) List(condition string, id uint32) ([]model.JoinPost, er
 	case "tag":
 		rows, err = getPostsByTagID(context.Background(), id)
 		break
+	default:
+		rows, err = getAllPosts(context.Background())
 	}
 	if err != nil {
 		fmt.Println("Error happened")

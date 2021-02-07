@@ -10,31 +10,24 @@ import (
 	"github.com/yzmw1213/PostService/domain/model"
 )
 
-var DemoPost = model.Post{
-	Title:        testTitle,
-	Content:      testContent,
-	CreateUserID: testPostUserID,
-}
-
-var DemoPostTag = model.PostTag{}
-
-var DemoPostContentNull = model.Post{
-	Title:        testTitle,
-	Content:      "",
-	CreateUserID: testPostUserID,
-}
-
-var DemoJoinPost = model.JoinPost{}
-
-var DemoUser = model.User{}
-
-var DemoPostLikeUser = []model.User{}
+var (
+	DemoPost            = model.Post{Title: testTitle, Content: testContent, CreateUserID: testPostUserID}
+	DemoPostTag         = model.PostTag{}
+	DemoPostContentNull = model.Post{Title: testTitle, Content: "", CreateUserID: testPostUserID}
+	DemoJoinPost        = model.JoinPost{}
+	DemoUser            = model.User{}
+	DemoPostLikeUser    = []model.User{}
+	user1               uint32
+	user2               uint32
+	user3               uint32
+)
 
 // TestCreate 投稿作成の正常系
 func TestCreate(t *testing.T) {
 	initTable()
 	var i PostInteractor
 	post := makePost(testTitle, testContent)
+	post.CreateUserID = user1
 	postTags := makePostTags()
 
 	//
@@ -121,8 +114,8 @@ func TestCreateTitleTooLong(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	var i PostInteractor
-	log.Println("DemoPost", DemoPost)
 	post := makePost(testTitle, testContent)
+	post.CreateUserID = user2
 	postTags := makePostTags()
 	joinPost := makeJoinPost(post, DemoUser, postTags, nil, nil)
 
@@ -134,8 +127,6 @@ func TestDelete(t *testing.T) {
 
 	err = i.DeleteByID(postID)
 	assert.Equal(t, nil, err)
-
-	log.Println("created PostID", postID)
 
 	deletedPost, err := i.GetByID(postID)
 	assert.NotEqual(t, nil, err)
@@ -157,13 +148,14 @@ func TestDelete(t *testing.T) {
 func TestUpdatePost(t *testing.T) {
 	var i PostInteractor
 	post := makePost(testTitle, testContent)
+	post.CreateUserID = user2
 	joinPost := makeJoinPost(post, DemoUser, nil, nil, nil)
 	createdJoinPost, err := i.Create(&joinPost)
 
 	assert.Equal(t, nil, err)
 	updateJoinPost := createdJoinPost
 	updateJoinPost.Post.Content = "Content updated"
-	updateJoinPost.Post.UpdateUserID = 12345
+	updateJoinPost.Post.UpdateUserID = user2
 
 	time.Sleep(time.Second * 3)
 	updatedJoinPost, err := i.Update(updateJoinPost)
@@ -177,7 +169,7 @@ func TestUpdatePost(t *testing.T) {
 	assert.Equal(t, createdJoinPost.Post.CreateUserID, updatedPost.CreateUserID)
 	assert.Equal(t, createdJoinPost.Post.CreatedAt, updatedPost.CreatedAt)
 	assert.NotEqual(t, readPost.UpdatedAt, updatedPost.UpdatedAt)
-	assert.NotEqual(t, testPostUserID, updatedPost.UpdateUserID)
+	assert.Equal(t, user2, updatedPost.UpdateUserID)
 
 }
 
@@ -185,6 +177,7 @@ func TestUpdatePostTag(t *testing.T) {
 	var i PostInteractor
 	post := makePost(testTitle, testContent)
 	postTags := makePostTags()
+	post.CreateUserID = user3
 	joinPost := makeJoinPost(post, DemoUser, postTags, nil, nil)
 
 	createdPost, err := i.Create(&joinPost)
@@ -196,12 +189,14 @@ func TestUpdatePostTag(t *testing.T) {
 	updatePostTags = append(updatePostTags, model.PostTag{PostID: postID, TagID: four})
 
 	joinPost.PostTags = updatePostTags
+	joinPost.Post.UpdateUserID = user3
 
-	_, err = i.Update(&joinPost)
+	updatedJoinPost, err := i.Update(&joinPost)
 
 	afterPostTagCount := countPostTagByPostID(postID)
 
 	assert.Equal(t, beforePostTagCount+1, afterPostTagCount)
+	assert.Equal(t, user3, updatedJoinPost.Post.UpdateUserID)
 }
 
 func selectUsers() (uint32, uint32, uint32) {
@@ -233,11 +228,11 @@ func TestLikePost(t *testing.T) {
 	var i PostInteractor
 
 	post := makePost(testTitle, testContent)
+	post.CreateUserID = user1
 	joinPost := makeJoinPost(post, DemoUser, nil, nil, nil)
 	createdPost, err := i.Create(&joinPost)
 	assert.Equal(t, nil, err)
 	postID := createdPost.Post.ID
-	user1, user2, _ := selectUsers()
 	likeUser := &model.PostLikeUser{PostID: postID, UserID: user1}
 
 	_, err = i.Like(likeUser)
@@ -258,11 +253,11 @@ func TestLikePost(t *testing.T) {
 func TestNotLikePost(t *testing.T) {
 	var i PostInteractor
 	post := makePost(testTitle, testContent)
+	post.CreateUserID = user2
 	joinPost := makeJoinPost(post, DemoUser, nil, nil, nil)
 	createdPost, err := i.Create(&joinPost)
 	assert.Equal(t, nil, err)
 	postID := createdPost.Post.ID
-	user1, user2, user3 := selectUsers()
 	likeUsers := []model.PostLikeUser{
 		{PostID: postID, UserID: user1},
 		{PostID: postID, UserID: user2},
@@ -287,6 +282,7 @@ func TestNotLikePost(t *testing.T) {
 func TestCreateComment(t *testing.T) {
 	var i PostInteractor
 	post := makePost(testTitle, testContent)
+	post.CreateUserID = user3
 	joinPost := makeJoinPost(post, DemoUser, nil, nil, nil)
 	createdPost, err := i.Create(&joinPost)
 	assert.Equal(t, nil, err)
@@ -306,6 +302,7 @@ func TestCreateComment(t *testing.T) {
 func TestCreateCommentNull(t *testing.T) {
 	var i PostInteractor
 	post := makePost(testTitle, testContent)
+	post.CreateUserID = user1
 	joinPost := makeJoinPost(post, DemoUser, nil, nil, nil)
 	createdPost, err := i.Create(&joinPost)
 	assert.Equal(t, nil, err)
@@ -322,6 +319,7 @@ func TestCreateCommentNull(t *testing.T) {
 func TestCreateCommentTooLong(t *testing.T) {
 	var i PostInteractor
 	post := makePost(testTitle, testContent)
+	post.CreateUserID = user1
 	joinPost := makeJoinPost(post, DemoUser, nil, nil, nil)
 	createdPost, err := i.Create(&joinPost)
 	assert.Equal(t, nil, err)
@@ -338,6 +336,7 @@ func TestCreateCommentTooLong(t *testing.T) {
 func TestUpdateComment(t *testing.T) {
 	var i PostInteractor
 	post := makePost(testTitle, testContent)
+	post.CreateUserID = user2
 	joinPost := makeJoinPost(post, DemoUser, nil, nil, nil)
 	createdPost, err := i.Create(&joinPost)
 
@@ -364,6 +363,7 @@ func TestUpdateComment(t *testing.T) {
 func TestDeleteComment(t *testing.T) {
 	var i PostInteractor
 	post := makePost(testTitle, testContent)
+	post.CreateUserID = user3
 	joinPost := makeJoinPost(post, DemoUser, nil, nil, nil)
 	createdPost, err := i.Create(&joinPost)
 	assert.Equal(t, nil, err)
@@ -385,6 +385,43 @@ func TestDeleteComment(t *testing.T) {
 	afterCommentCount := countCommentByPostID(postID)
 	// likeしているユーザー数が1だけ減っている事をテスト
 	assert.Equal(t, 0, afterCommentCount)
+}
+
+func TestGetAllPosts(t *testing.T) {
+	var i PostInteractor
+	posts, err := i.List("all", 0)
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, 0, len(posts))
+}
+
+func TestGetPostsByUserID(t *testing.T) {
+	var i PostInteractor
+	posts, err := i.List("create", user1)
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, 0, len(posts))
+
+	for _, post := range posts {
+		assert.Equal(t, user1, post.Post.CreateUserID)
+	}
+}
+
+func TestGetPostsByLikeUserID(t *testing.T) {
+	var i PostInteractor
+	posts, err := i.List("like", user2)
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, 0, len(posts))
+}
+
+func TestGetPostsByTagID(t *testing.T) {
+	var i PostInteractor
+
+	posts, err := i.List("tag", one)
+	assert.Equal(t, nil, err)
+	assert.NotEqual(t, 0, len(posts))
+
+	posts, err = i.List("tag", four)
+	assert.Equal(t, nil, err)
+	assert.Equal(t, 1, len(posts))
 }
 
 func makePostTags() []model.PostTag {
@@ -414,13 +451,14 @@ func makePost(title string, content string) model.Post {
 func makeComment(post model.Post, comment string) model.Comment {
 	return model.Comment{
 		PostID:         post.ID,
-		CreateUserID:   post.CreateUserID,
+		CreateUserID:   user1,
 		CommentContent: comment,
 	}
 }
 
 func initTable() {
 	DB := db.GetDB()
+	user1, user2, user3 = selectUsers()
 	DB.Delete(&model.Post{})
 	DB.Delete(&model.Tag{})
 	DB.Delete(&model.PostTag{})

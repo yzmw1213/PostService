@@ -71,6 +71,17 @@ func convertErrorWithStatus(err error) error {
 					errorStatus = StatusTagNameStringCount
 					break
 				}
+			// コメントContentのバリデーションエラー
+			case "CommentContent":
+				typ = err.Tag()
+				switch typ {
+				case "min":
+					errorStatus = StatusCommentContentStringCount
+					break
+				case "max":
+					errorStatus = StatusCommentContentStringCount
+					break
+				}
 			}
 		}
 	} else {

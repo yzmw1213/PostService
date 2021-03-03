@@ -42,24 +42,18 @@ func TestCreatePost(t *testing.T) {
 	createPosts = append(createPosts, &postservice.Post{
 		Title:        "Title",
 		Content:      "Content",
-		MaxNum:       2,
-		Gender:       1,
 		CreateUserId: 111111,
 	})
 
 	createPosts = append(createPosts, &postservice.Post{
 		Title:        "Title",
 		Content:      "Content",
-		MaxNum:       2,
-		Gender:       1,
 		CreateUserId: 222222,
 	})
 
 	createPosts = append(createPosts, &postservice.Post{
 		Title:        "Title",
 		Content:      "Content",
-		MaxNum:       2,
-		Gender:       1,
 		CreateUserId: 333333,
 	})
 
@@ -79,8 +73,6 @@ func TestCreatepostContentMax(t *testing.T) {
 	var createPost = &postservice.Post{
 		Title:        "Title",
 		Content:      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-		MaxNum:       2,
-		Gender:       1,
 		CreateUserId: 555555,
 	}
 	ctx := context.Background()
@@ -127,8 +119,6 @@ func TestCreatePostContentNull(t *testing.T) {
 	var createPost = &postservice.Post{
 		Title:        "Title",
 		Content:      "",
-		MaxNum:       2,
-		Gender:       1,
 		CreateUserId: 666666,
 	}
 	ctx := context.Background()
@@ -158,8 +148,6 @@ func TestCreatePostTitleMax(t *testing.T) {
 	var createPost = &postservice.Post{
 		Title:        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 		Content:      "Content",
-		MaxNum:       2,
-		Gender:       1,
 		CreateUserId: 555555,
 	}
 	ctx := context.Background()
@@ -189,8 +177,6 @@ func TestCreatePostTitleNull(t *testing.T) {
 	var createPost = &postservice.Post{
 		Title:        "",
 		Content:      "Content",
-		MaxNum:       2,
-		Gender:       1,
 		CreateUserId: 555555,
 	}
 	ctx := context.Background()
@@ -229,8 +215,6 @@ func TestCreatePostTag(t *testing.T) {
 	createPost := &postservice.Post{
 		Title:        "Title",
 		Content:      "Content",
-		MaxNum:       2,
-		Gender:       1,
 		Tags:         []uint32{one, two, three},
 		CreateUserId: 111111,
 	}

@@ -6,17 +6,25 @@ option go_package = ".;postservice";
 
 message Post {
   uint32 id = 1;
+  string title=2;
+  string content =3;
   // uint32 status = 2;
-  string title=3;
-  string content =4;
-  uint32 max_num =5;
-  uint32 gender =6;
-  repeated uint32 tags=7;
   // string photo_url =7;
-  uint32 createUser_id =8;
-  string createUser_name =9;
-  uint32 updateUser_id =10;
-  string updateUser_name =11;
+  uint32 create_user_id =4;
+  string create_user_name =5;
+  uint32 update_user_id =6;
+  string update_user_name =7;
+  repeated uint32 tags=8;
+  repeated uint32 like_users=9;
+  repeated Comment comments=10;
+}
+
+message Comment {
+  uint32 id =1;
+  uint32 post_id =2;
+  uint32 create_user_id=3;
+  string create_user_name=4;
+  string content=5;
 }
 
 // レスポンスのステータス
@@ -48,6 +56,24 @@ message UpdatePostResponse {
   ResponseStatus status=1;
 }
 
+message LikePostRequest {
+  uint32 id=1;
+  uint32 user_id=2;
+}
+
+message LikePostResponse {
+  ResponseStatus status=1;
+}
+
+message NotLikePostRequest {
+  uint32 id=1;
+  uint32 user_id=2;
+}
+
+message NotLikePostResponse {
+  ResponseStatus status=1;
+}
+
 message DeletePostRequest {
   uint32 id=1;
 }
@@ -57,16 +83,48 @@ message DeletePostResponse {
 }
 
 message ListPostRequest {
+  string condition=1;
+  uint32 id=2;
 }
 
 message ListPostResponse {
-  repeated Post post=1;
+  uint32 count=1;
+  repeated Post post=2;
+}
+
+message CreateCommentRequest {
+  Comment comment=1;
+}
+
+message CreateCommentResponse {
+  ResponseStatus status=1;
+}
+
+message UpdateCommentRequest {
+  Comment comment=1;
+}
+
+message UpdateCommentResponse {
+  ResponseStatus status=1;
+}
+
+message DeleteCommentRequest {
+  uint32 id=1;
+}
+
+message DeleteCommentResponse {
+  ResponseStatus status=1;
 }
 
 service PostService {
   rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
   rpc ReadPost(ReadPostRequest) returns (ReadPostResponse);
   rpc UpdatePost(UpdatePostRequest) returns (UpdatePostResponse);
+  rpc LikePost(LikePostRequest)returns (LikePostResponse);
+  rpc NotLikePost(NotLikePostRequest)returns (NotLikePostResponse);
   rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
   rpc ListPost(ListPostRequest) returns (ListPostResponse);
+  rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse);
+  rpc UpdateComment(UpdateCommentRequest) returns (UpdateCommentResponse);
+  rpc DeleteComment(DeleteCommentRequest) returns (DeleteCommentResponse);
 }

@@ -4,18 +4,5 @@
 # env variables
 .env
 
-# terraform variables
-terraform.tfvars
-
-# terraform state
-terraform.tfstate
-terraform.tfstate.backup
-
-# local terraform files
-**/.terraform/*
-
-# terraform keys
-infra/keys
-
 #vscode
 .vscode

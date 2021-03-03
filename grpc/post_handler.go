@@ -2,7 +2,6 @@ package grpc
 
 import (
 	"context"
-	"log"
 
 	"github.com/yzmw1213/PostService/domain/model"
 	"github.com/yzmw1213/PostService/grpc/postservice"
@@ -13,6 +12,14 @@ const (
 	StatusCreatePostSuccess string = "POST_CREATE_SUCCESS"
 	// StatusUpdatePostSuccess 投稿更新成功ステータス
 	StatusUpdatePostSuccess string = "POST_UPDATE_SUCCESS"
+	// StatusLikePostSuccess 投稿お気に入り成功ステータス
+	StatusLikePostSuccess string = "POST_LIKE_SUCCESS"
+	// StatusNotLikePostSuccess 投稿お気に入り取り消し成功ステータス
+	StatusNotLikePostSuccess string = "POST_NOTLIKE_SUCCESS"
+	// StatusCreateCommentSuccess コメント作成成功ステータス
+	StatusCreateCommentSuccess string = "COMMENT_CREATE_SUCCESS"
+	// StatusUpdateCommentSuccess コメント更新成功ステータス
+	StatusUpdateCommentSuccess string = "COMMENT_UPDATE_SUCCESS"
 	// StatusDeletePostSuccess 投稿削除成功ステータス
 	StatusDeletePostSuccess string = "POST_DELETE_SUCCESS"
 	// StatusPostNotExists 指定した投稿の登録がない時のエラーステータス
@@ -21,6 +28,8 @@ const (
 	StatusPostTitleStringCount string = "POST_TITLE_COUNT_ERROR"
 	// StatusPostContentStringCount 投稿内容文字数が無効のエラーステータス
 	StatusPostContentStringCount string = "POST_CONTENT_COUNT_ERROR"
+	// StatusCommentContentStringCount 投稿内容文字数が無効のエラーステータス
+	StatusCommentContentStringCount string = "POST_CONTENT_COUNT_ERROR"
 )
 
 func (s server) CreatePost(ctx context.Context, req *postservice.CreatePostRequest) (*postservice.CreatePostResponse, error) {
@@ -53,19 +62,19 @@ func (s server) DeletePost(ctx context.Context, req *postservice.DeletePostReque
 }
 
 func (s server) ListPost(ctx context.Context, req *postservice.ListPostRequest) (*postservice.ListPostResponse, error) {
-	rows, err := s.PostUsecase.List()
-	if err != nil {
-		return nil, err
-	}
 	var posts []*postservice.Post
+	condition := req.GetCondition()
+	ID := req.GetId()
+
+	rows, err := s.PostUsecase.List(condition, ID)
+	if err != nil {
+		return s.makeListPostResponse(posts), err
+	}
 	for _, post := range rows {
 		post := makeGrpcPost(&post)
 		posts = append(posts, post)
 	}
-	res := &postservice.ListPostResponse{
-		Post: posts,
-	}
-	return res, nil
+	return s.makeListPostResponse(posts), nil
 }
 
 func (s server) ReadPost(ctx context.Context, req *postservice.ReadPostRequest) (*postservice.ReadPostResponse, error) {
@@ -95,14 +104,61 @@ func (s server) UpdatePost(ctx context.Context, req *postservice.UpdatePostReque
 	return s.makeUpdatePostResponse(StatusUpdatePostSuccess), nil
 }
 
+func (s server) LikePost(ctx context.Context, req *postservice.LikePostRequest) (*postservice.LikePostResponse, error) {
+	postLikeUser := &model.PostLikeUser{
+		PostID: req.GetId(),
+		UserID: req.GetUserId(),
+	}
+
+	if _, err := s.PostUsecase.Like(postLikeUser); err != nil {
+		return nil, err
+	}
+	return s.makeLikePostResponse(StatusLikePostSuccess), nil
+}
+
+func (s server) NotLikePost(ctx context.Context, req *postservice.NotLikePostRequest) (*postservice.NotLikePostResponse, error) {
+	postLikeUser := &model.PostLikeUser{
+		PostID: req.GetId(),
+		UserID: req.GetUserId(),
+	}
+
+	if _, err := s.PostUsecase.NotLike(postLikeUser); err != nil {
+		return nil, err
+	}
+	return s.makeNotLikePostResponse(StatusNotLikePostSuccess), nil
+}
+
+func (s server) CreateComment(ctx context.Context, req *postservice.CreateCommentRequest) (*postservice.CreateCommentResponse, error) {
+	comment := makeComment(req.Comment)
+	if _, err := s.PostUsecase.CreateComment(comment); err != nil {
+		return nil, err
+	}
+	return s.makeCreateCommentResponse(StatusCreateCommentSuccess), nil
+}
+
+func (s server) UpdateComment(ctx context.Context, req *postservice.UpdateCommentRequest) (*postservice.UpdateCommentResponse, error) {
+	comment := makeComment(req.Comment)
+	if _, err := s.PostUsecase.UpdateComment(comment); err != nil {
+		return nil, err
+	}
+	return s.makeUpdateCommentResponse(StatusUpdateCommentSuccess), nil
+}
+
+func (s server) DeleteComment(ctx context.Context, req *postservice.DeleteCommentRequest) (*postservice.DeleteCommentResponse, error) {
+	id := req.GetId()
+
+	if err := s.PostUsecase.DeleteComment(id); err != nil {
+		return nil, err
+	}
+	return s.makeDeleteCommentResponse(StatusDeletePostSuccess), nil
+}
+
 func makePostModel(gPost *postservice.Post) *model.Post {
 	post := &model.Post{
 		ID: gPost.GetId(),
 		// Status:       gPost.GetStatus(),
 		Title:        gPost.GetTitle(),
 		Content:      gPost.GetContent(),
-		MaxNum:       gPost.GetMaxNum(),
-		Gender:       gPost.GetGender(),
 		CreateUserID: gPost.GetCreateUserId(),
 		UpdateUserID: gPost.GetUpdateUserId(),
 	}
@@ -118,29 +174,63 @@ func makePostTagModel(gPost *postservice.Post) []model.PostTag {
 			TagID:  tagID,
 		})
 	}
-	log.Println("postTags", postTags)
 	return postTags
+}
+
+func makeComment(gComment *postservice.Comment) *model.Comment {
+	comment := &model.Comment{
+		CommentID:      gComment.Id,
+		PostID:         gComment.PostId,
+		CreateUserID:   gComment.CreateUserId,
+		CommentContent: gComment.Content,
+	}
+
+	return comment
 }
 
 func makeGrpcPost(post *model.JoinPost) *postservice.Post {
 	var tags []uint32
+	var likeUsers []uint32
+	var postComments []*postservice.Comment
 	gPost := &postservice.Post{
 		Id: post.Post.ID,
 		// Status:       post.Status,
 		Title:          post.Post.Title,
 		Content:        post.Post.Content,
-		MaxNum:         post.Post.MaxNum,
-		Gender:         post.Post.Gender,
 		CreateUserId:   post.Post.CreateUserID,
 		CreateUserName: post.User.UserName,
 		UpdateUserId:   post.Post.UpdateUserID,
 	}
-
+	// タグ
 	for _, postTag := range post.PostTags {
 		tags = append(tags, postTag.TagID)
 	}
 	gPost.Tags = tags
+
+	// お気に入りユーザー
+	for _, user := range post.PostLikeUsers {
+		likeUsers = append(likeUsers, user.ID)
+	}
+	gPost.LikeUsers = likeUsers
+
+	// コメント
+	for _, comment := range post.Comments {
+		gcomment := makeGrpcComment(comment)
+		postComments = append(postComments, gcomment)
+	}
+	gPost.Comments = postComments
+
 	return gPost
+}
+
+func makeGrpcComment(jc model.JoinComment) *postservice.Comment {
+	return &postservice.Comment{
+		Id:             jc.Comment.CommentID,
+		PostId:         jc.Comment.PostID,
+		CreateUserId:   jc.Comment.CreateUserID,
+		CreateUserName: jc.CreateUser.UserName,
+		Content:        jc.Comment.CommentContent,
+	}
 }
 
 func createPostRequest(post *postservice.Post) *postservice.CreatePostRequest {
@@ -179,9 +269,78 @@ func (s server) makeUpdatePostResponse(statusCode string) *postservice.UpdatePos
 	return res
 }
 
+// makeListPostResponse ListPostメソッドのresponseを生成し返す
+func (s server) makeListPostResponse(posts []*postservice.Post) *postservice.ListPostResponse {
+	res := &postservice.ListPostResponse{
+		Count: uint32(len(posts)),
+		Post:  posts,
+	}
+	return res
+}
+
+// makeLikePostResponse LikePostメソッドのresponseを生成し返す
+func (s server) makeLikePostResponse(statusCode string) *postservice.LikePostResponse {
+	res := &postservice.LikePostResponse{}
+	if statusCode != "" {
+		responseStatus := &postservice.ResponseStatus{
+			Code: statusCode,
+		}
+		res.Status = responseStatus
+	}
+	return res
+}
+
+// makeNotLikePostResponse NotLikePostメソッドのresponseを生成し返す
+func (s server) makeNotLikePostResponse(statusCode string) *postservice.NotLikePostResponse {
+	res := &postservice.NotLikePostResponse{}
+	if statusCode != "" {
+		responseStatus := &postservice.ResponseStatus{
+			Code: statusCode,
+		}
+		res.Status = responseStatus
+	}
+	return res
+}
+
 // makeDeletePostResponse DeletePostメソッドのresponseを生成し返す
 func (s server) makeDeletePostResponse(statusCode string) *postservice.DeletePostResponse {
 	res := &postservice.DeletePostResponse{}
+	if statusCode != "" {
+		responseStatus := &postservice.ResponseStatus{
+			Code: statusCode,
+		}
+		res.Status = responseStatus
+	}
+	return res
+}
+
+// makeCreateCommentResponse CreateCommentメソッドのresponseを生成し返す
+func (s server) makeCreateCommentResponse(statusCode string) *postservice.CreateCommentResponse {
+	res := &postservice.CreateCommentResponse{}
+	if statusCode != "" {
+		responseStatus := &postservice.ResponseStatus{
+			Code: statusCode,
+		}
+		res.Status = responseStatus
+	}
+	return res
+}
+
+// makeUpdateCommentResponse UpdateCommentメソッドのresponseを生成し返す
+func (s server) makeUpdateCommentResponse(statusCode string) *postservice.UpdateCommentResponse {
+	res := &postservice.UpdateCommentResponse{}
+	if statusCode != "" {
+		responseStatus := &postservice.ResponseStatus{
+			Code: statusCode,
+		}
+		res.Status = responseStatus
+	}
+	return res
+}
+
+// makeDeleteCommentResponse DeleteCommentメソッドのresponseを生成し返す
+func (s server) makeDeleteCommentResponse(statusCode string) *postservice.DeleteCommentResponse {
+	res := &postservice.DeleteCommentResponse{}
 	if statusCode != "" {
 		responseStatus := &postservice.ResponseStatus{
 			Code: statusCode,

@@ -39,10 +39,10 @@ workflows:
           filters:
             branches:
               only: master
-          region: AWS_DEFAULT_REGION
+          region: AWS_REGION
           account-url: AWS_ECR_ACCOUNT_URL
           repo: ${ECR_REPOSITORY_NAME}
-          tag: ${CIRCLE_SHA1}
+          tag: "${CIRCLE_SHA1}"
       - aws-ecs/deploy-service-update:
           # イメージのビルド & プッシュが成功したら実行
           requires:
@@ -50,15 +50,7 @@ workflows:
           filters:
             branches:
               only: master
-          aws-region: ${AWS_DEFAULT_REGION}
-          family: '${ECS_TASK}'
+          aws-region: ${AWS_REGION}
+          family: ${ECS_SERVICE}
           cluster-name: '${ECS_CLUSTER}'
-          service-name: '${ECS_SERVICE}'
-          container-image-name-updates: 'container=${ECS_SERVICE},tag=${CIRCLE_SHA1},image-and-tag=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY_NAME}:${CIRCLE_SHA1}'
-      # - aws-ecs/run-task:
-      #     requires:
-      #       - aws-ecs/deploy-service-update
-      #     aws-region: ${AWS_DEFAULT_REGION}
-      #     cluster: '${ECS_CLUSTER}'
-      #     task-definition: '${ECS_TASK}'
-      #     launch-type: EC2
+          container-image-name-updates: 'container=${ECS_SERVICE},image-and-tag=${AWS_ECR_ACCOUNT_URL}/${ECR_REPOSITORY_NAME}:${CIRCLE_SHA1}'

@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package userservice;
+
+option go_package = ".;userservice";
+
+// ユーザー
+message User {
+  uint32 user_id = 1;
+  string user_name = 2;
+  string password = 3;
+  string profile_text = 4;
+  string email = 5;
+  uint32 authority = 6;
+}
+
+// ユーザープロフィール
+message UserProfile {
+  uint32 user_id = 1;
+  string user_name = 2;
+  string profile_text = 3;
+  uint32 authority = 4;
+  repeated uint32 follow_users=5;
+}
+
+message Auth {
+  string token =1;
+  uint32 user_id=2;
+  uint32 authority=3;
+}
+
+// レスポンスのステータス
+message ResponseStatus{
+  string code =1;
+}
+
+message ListUserRequest {
+}
+
+message ListUserResponse {
+  repeated UserProfile profile=1;
+}
+
+service UserService {
+  rpc ListUser(ListUserRequest) returns (ListUserResponse);
+}

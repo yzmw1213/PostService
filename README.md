@@ -32,7 +32,7 @@ Goで構築するマイクロサービスの投稿サービス
 4. interfaceを書いてメソッドの実装チェックを行っている
 5. linterを使っている
 6. issueとプルリクエストを活用している
-7. circleCIでDockerfileのビルドを行い、本番環境を自動で更新している
+7. CircleCIでDockerfileのビルドを行い、本番環境を自動で更新している
 
 ## 関連レポジトリ
 - [フロントエンド](https://github.com/yzmw1213/Front)

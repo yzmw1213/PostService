@@ -91,7 +91,7 @@ func (p *PostInteractor) DeleteByID(id uint32) error {
 	return nil
 }
 
-// List 投稿を全件取得
+// List 条件に応じて投稿を取得
 func (p *PostInteractor) List(condition string, id uint32) ([]model.JoinPost, error) {
 	var rows []model.Post
 	switch condition {
@@ -368,11 +368,15 @@ func listPostLikeUsersByID(ID uint32) ([]model.PostLikeUser, error) {
 
 func createJoinPosts(posts []model.Post) ([]model.JoinPost, error) {
 	var joinPosts []model.JoinPost
-	// 全ユーザーをUserServiceから取得
-	users := getUserData()
-	if err != nil {
+
+	if len(posts) == 0 {
+		log.Println("post is nil")
 		return []model.JoinPost{}, err
 	}
+
+	// 全ユーザーをUserServiceから取得
+	users := getUserData()
+
 	for _, post := range posts {
 		var likeUsers []model.User
 		var joinComments []model.JoinComment
@@ -466,9 +470,8 @@ func deletePostTagByPostID(ID uint32) {
 
 // ユーザーサービスからユーザー情報取得
 func getUserData() map[uint32]model.User {
-	proxyServerURL := os.Getenv("PROXY_SERVER_URL")
-
-	cc, err := grpc.Dial(proxyServerURL, grpc.WithInsecure())
+	postURL := os.Getenv("POST_URL")
+	cc, err := grpc.Dial(postURL, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("could not connect: %v", err)
 	}

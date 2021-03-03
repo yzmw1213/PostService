@@ -12,7 +12,7 @@ Goで構築するマイクロサービスの投稿サービス
 - CircleCI
 
 ## 構成図
-![PortfolioArchitecture](https://user-images.githubusercontent.com/36359899/108287470-2ef5e280-71ce-11eb-9301-a2c3c8ed5d01.png)
+![PortfolioArchitecture](https://user-images.githubusercontent.com/36359899/109421540-26e24200-7a1b-11eb-8871-b2a4c6723f05.png)
 
 ## 機能一覧
 - 投稿
@@ -32,8 +32,10 @@ Goで構築するマイクロサービスの投稿サービス
 4. interfaceを書いてメソッドの実装チェックを行っている
 5. linterを使っている
 6. issueとプルリクエストを活用している
+7. circleCIでDockerfileのビルドを行い、本番環境を自動で更新している
 
 ## 関連レポジトリ
 - [フロントエンド](https://github.com/yzmw1213/Front)
 - [Envoyプロキシ](https://github.com/yzmw1213/Proxy)
 - [ユーザーサービス](https://github.com/yzmw1213/UserService)
+- [AWSインフラ](https://github.com/yzmw1213/Infra)

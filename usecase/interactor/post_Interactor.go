@@ -470,8 +470,8 @@ func deletePostTagByPostID(ID uint32) {
 
 // ユーザーサービスからユーザー情報取得
 func getUserData() map[uint32]model.User {
-	postURL := os.Getenv("POST_URL")
-	cc, err := grpc.Dial(postURL, grpc.WithInsecure())
+	userURL := os.Getenv("USER_URL")
+	cc, err := grpc.Dial(userURL, grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("could not connect: %v", err)
 	}

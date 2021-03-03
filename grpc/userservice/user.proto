@@ -20,6 +20,7 @@ message UserProfile {
   string user_name = 2;
   string profile_text = 3;
   uint32 authority = 4;
+  repeated uint32 follow_users=5;
 }
 
 message Auth {
@@ -33,14 +34,6 @@ message ResponseStatus{
   string code =1;
 }
 
-message ReadUserRequest {
-  uint32  user_id=1;
-}
-
-message ReadUserResponse {
-  User user=1;
-}
-
 message ListUserRequest {
 }
 
@@ -49,6 +42,5 @@ message ListUserResponse {
 }
 
 service UserService {
-  rpc ReadUser(ReadUserRequest) returns (ReadUserResponse);
   rpc ListUser(ListUserRequest) returns (ListUserResponse);
 }

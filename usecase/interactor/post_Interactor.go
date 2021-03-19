@@ -133,7 +133,9 @@ func getPostsByCreateUserID(ctx context.Context, id uint32) ([]model.Post, error
 	var posts []model.Post
 	DB := db.GetDB()
 
-	_, err := DB.Where("create_user_id = ?", id).Find(&posts).Rows()
+	rows, err := DB.Where("create_user_id = ?", id).Find(&posts).Rows()
+	defer rows.Close()
+
 	if err != nil {
 		log.Println("Error occured")
 		return nil, err
@@ -147,6 +149,8 @@ func getPostsByLikeUserID(ctx context.Context, id uint32) ([]model.Post, error) 
 	DB := db.GetDB()
 
 	rows, err := DB.Table("posts").Where("post_like_users.user_id = ?", id).Select("posts.id, posts.title, posts.content, posts.create_user_id, posts.update_user_id").Joins("inner join post_like_users on post_like_users.post_id = posts.id").Rows()
+	defer rows.Close()
+
 	for rows.Next() {
 		DB.ScanRows(rows, &post)
 		posts = append(posts, post)
@@ -164,6 +168,8 @@ func getPostsByTagID(ctx context.Context, id uint32) ([]model.Post, error) {
 	DB := db.GetDB()
 
 	rows, err := DB.Table("posts").Where("post_tags.tag_id = ?", id).Select("posts.id, posts.title, posts.content, posts.create_user_id, posts.update_user_id").Joins("inner join post_tags on post_tags.post_id = posts.id").Rows()
+	defer rows.Close()
+
 	for rows.Next() {
 		DB.ScanRows(rows, &post)
 		posts = append(posts, post)

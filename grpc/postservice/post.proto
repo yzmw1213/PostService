@@ -15,8 +15,9 @@ message Post {
   uint32 update_user_id =6;
   string update_user_name =7;
   repeated uint32 tags=8;
-  repeated uint32 like_users=9;
-  repeated Comment comments=10;
+  string image=9;
+  repeated uint32 like_users=10;
+  repeated Comment comments=11;
 }
 
 message Comment {

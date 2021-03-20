@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 )
 
+// NewSession AWS接続セッションを返す
 func NewSession() (*session.Session, error) {
 	creds := credentials.NewStaticCredentials(awsAccessKey, awsSecretAccessKey, "")
 	sess, err := session.NewSession(&aws.Config{

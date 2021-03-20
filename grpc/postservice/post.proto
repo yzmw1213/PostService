@@ -8,8 +8,6 @@ message Post {
   uint32 id = 1;
   string title=2;
   string content =3;
-  // uint32 status = 2;
-  // string photo_url =7;
   uint32 create_user_id =4;
   string create_user_name =5;
   uint32 update_user_id =6;
@@ -109,6 +107,14 @@ message UpdateCommentResponse {
   ResponseStatus status=1;
 }
 
+message DeletePostsCommentsByUserIDRequest {
+  uint32 create_user_id=1;
+}
+
+message DeletePostsCommentsByUserIDResponse {
+  ResponseStatus status=1;
+}
+
 message DeleteCommentRequest {
   uint32 id=1;
 }
@@ -121,6 +127,7 @@ service PostService {
   rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
   rpc ReadPost(ReadPostRequest) returns (ReadPostResponse);
   rpc UpdatePost(UpdatePostRequest) returns (UpdatePostResponse);
+  rpc DeletePostsCommentsByUserID(DeletePostsCommentsByUserIDRequest) returns (DeletePostsCommentsByUserIDResponse);
   rpc LikePost(LikePostRequest)returns (LikePostResponse);
   rpc NotLikePost(NotLikePostRequest)returns (NotLikePostResponse);
   rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);

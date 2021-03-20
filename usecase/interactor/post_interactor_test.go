@@ -1,6 +1,7 @@
 package interactor
 
 import (
+	"context"
 	"log"
 	"testing"
 	"time"
@@ -17,6 +18,7 @@ var (
 	DemoJoinPost        = model.JoinPost{}
 	DemoUser            = model.User{}
 	DemoPostLikeUser    = []model.User{}
+	DemoComment         = model.Comment{PostID: one, CommentContent: testContent}
 	user1               uint32
 	user2               uint32
 	user3               uint32
@@ -170,7 +172,6 @@ func TestUpdatePost(t *testing.T) {
 	assert.Equal(t, createdJoinPost.Post.CreatedAt, updatedPost.CreatedAt)
 	assert.NotEqual(t, readPost.UpdatedAt, updatedPost.UpdatedAt)
 	assert.Equal(t, user2, updatedPost.UpdateUserID)
-
 }
 
 func TestUpdatePostTag(t *testing.T) {
@@ -423,6 +424,62 @@ func TestDeleteComment(t *testing.T) {
 // 	assert.Equal(t, nil, err)
 // 	assert.Equal(t, 1, len(posts))
 // }
+
+func TestDeletePostsByUserID(t *testing.T) {
+	log.Println("user3", user3)
+	var i PostInteractor
+	var posts []model.Post
+
+	DemoPost.CreateUserID = user3
+	posts = append(posts, DemoPost)
+	DemoPost.CreateUserID = user3
+	posts = append(posts, DemoPost)
+	DemoPost.CreateUserID = user3
+	posts = append(posts, DemoPost)
+	DemoPost.CreateUserID = user3
+	posts = append(posts, DemoPost)
+
+	for _, p := range posts {
+		postTags := makePostTags()
+
+		joinPost := makeJoinPost(p, DemoUser, postTags, nil, nil)
+		jp, err := i.Create(&joinPost)
+
+		assert.Equal(t, nil, err)
+		assert.Equal(t, user3, jp.Post.CreateUserID)
+	}
+
+	err := i.DeletePostsByUserID(user3)
+	assert.Equal(t, nil, err)
+	posts, err = getPostsByCreateUserID(context.Background(), user3)
+	assert.Equal(t, 0, len(posts))
+}
+
+func TestDeleteCommentsByUserID(t *testing.T) {
+	log.Println("user2", user2)
+	var i PostInteractor
+	var comments []model.Comment
+	DemoComment.CreateUserID = user2
+	DemoComment.CommentContent = testCommentContent
+	comments = append(comments, DemoComment)
+	DemoComment.CreateUserID = user2
+	comments = append(comments, DemoComment)
+	DemoComment.CreateUserID = user2
+	comments = append(comments, DemoComment)
+	DemoComment.CreateUserID = user2
+	comments = append(comments, DemoComment)
+	for _, c := range comments {
+		comment, err := i.CreateComment(&c)
+		assert.Equal(t, nil, err)
+		assert.Equal(t, user2, comment.CreateUserID)
+	}
+
+	err := i.DeleteCommentsByUserID(user2)
+	assert.Equal(t, nil, err)
+
+	count := countCommentsByUserID(user2)
+	assert.Equal(t, 0, count)
+}
 
 func makePostTags() []model.PostTag {
 	return []model.PostTag{

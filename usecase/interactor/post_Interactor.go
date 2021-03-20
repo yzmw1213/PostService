@@ -217,6 +217,20 @@ func (p *PostInteractor) Update(postData *model.JoinPost) (*model.JoinPost, erro
 	return postData, nil
 }
 
+// DeletePostsByUserID 退会したユーザーIDを元に投稿を削除する
+func (p *PostInteractor) DeletePostsByUserID(userID uint32) error {
+	var post model.Post
+	// トランザクション開始
+	tx := db.StartBegin()
+	err := tx.Where("create_user_id = ?", userID).Delete(&post).Error
+	if err != nil {
+		db.EndRollback()
+	}
+	// トランザクションを終了しコミット
+	db.EndCommit()
+	return err
+}
+
 // GetByID IDを元に投稿を1件取得する
 func (p *PostInteractor) GetByID(ID uint32) (model.Post, error) {
 	DB := db.GetDB()
@@ -353,6 +367,15 @@ func listCommentsByID(ID uint32) ([]model.Comment, error) {
 	}
 
 	return commentList, nil
+}
+
+// listCommentsByUserID UserIDを元にcomment件数を検索し返す
+func countCommentsByUserID(ID uint32) int {
+	var count int
+	DB := db.GetDB()
+	DB.Where("create_user_id = ?", ID).Model(&comment).Count(&count)
+
+	return count
 }
 
 // listPostLikeUsersByID PostIDを元にお気に入りしているユーザーを検索し返す
@@ -504,4 +527,13 @@ func getUserData() map[uint32]model.User {
 	}
 	return users
 
+}
+
+// DeleteCommentsByUserID 退会したユーザーIDを元にコメントを削除する
+func (p *PostInteractor) DeleteCommentsByUserID(userID uint32) error {
+	var comment model.Comment
+
+	DB := db.GetDB()
+	err := DB.Where("create_user_id = ?", userID).Delete(&comment).Error
+	return err
 }

@@ -23,6 +23,8 @@ const (
 	StatusCreateCommentSuccess string = "COMMENT_CREATE_SUCCESS"
 	// StatusUpdateCommentSuccess コメント更新成功ステータス
 	StatusUpdateCommentSuccess string = "COMMENT_UPDATE_SUCCESS"
+	// StatusDeletePostsCommentsByUserIDSuccess 投稿ユーザーID指定削除成功ステータス
+	StatusDeletePostsCommentsByUserIDSuccess string = "COMMENT_DELETEE_BY_USERID_SUCCESS"
 	// StatusDeletePostSuccess 投稿削除成功ステータス
 	StatusDeletePostSuccess string = "POST_DELETE_SUCCESS"
 	// StatusPostNotExists 指定した投稿の登録がない時のエラーステータス
@@ -168,6 +170,28 @@ func (s server) DeleteComment(ctx context.Context, req *postservice.DeleteCommen
 		return nil, err
 	}
 	return s.makeDeleteCommentResponse(StatusDeletePostSuccess), nil
+}
+
+func (s server) DeletePostsCommentsByUserID(ctx context.Context, req *postservice.DeletePostsCommentsByUserIDRequest) (*postservice.DeletePostsCommentsByUserIDResponse, error) {
+	createUserID := req.GetCreateUserId()
+
+	// 退会ユーザーの投稿記事を削除
+	if err := s.PostUsecase.DeletePostsByUserID(createUserID); err != nil {
+		return nil, err
+	}
+
+	// 退会ユーザーのコメントを削除
+	if err := s.PostUsecase.DeleteCommentsByUserID(createUserID); err != nil {
+		return nil, err
+	}
+
+	res := &postservice.DeletePostsCommentsByUserIDResponse{
+		Status: &postservice.ResponseStatus{
+			Code: StatusDeletePostsCommentsByUserIDSuccess,
+		},
+	}
+
+	return res, nil
 }
 
 func makePostModel(gPost *postservice.Post) *model.Post {

@@ -44,6 +44,12 @@ services:
       DB_ADRESS: post_db:3306
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_S3_BUCKET_NAME: ${AWS_S3_BUCKET_NAME}
+      AWS_S3_ENDPOINT: ${AWS_S3_ENDPOINT}
+      AWS_S3_REGION: ${AWS_S3_REGION}
+      AWS_S3_FAMILY_NAME: ${AWS_S3_FAMILY_NAME}
     networks:
       - test-network
     restart: always

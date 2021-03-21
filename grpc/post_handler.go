@@ -2,7 +2,10 @@ package grpc
 
 import (
 	"context"
+	"encoding/base64"
+	"strings"
 
+	"github.com/yzmw1213/PostService/aws"
 	"github.com/yzmw1213/PostService/domain/model"
 	"github.com/yzmw1213/PostService/grpc/postservice"
 )
@@ -20,6 +23,8 @@ const (
 	StatusCreateCommentSuccess string = "COMMENT_CREATE_SUCCESS"
 	// StatusUpdateCommentSuccess コメント更新成功ステータス
 	StatusUpdateCommentSuccess string = "COMMENT_UPDATE_SUCCESS"
+	// StatusDeletePostsCommentsByUserIDSuccess 投稿ユーザーID指定削除成功ステータス
+	StatusDeletePostsCommentsByUserIDSuccess string = "COMMENT_DELETEE_BY_USERID_SUCCESS"
 	// StatusDeletePostSuccess 投稿削除成功ステータス
 	StatusDeletePostSuccess string = "POST_DELETE_SUCCESS"
 	// StatusPostNotExists 指定した投稿の登録がない時のエラーステータス
@@ -33,6 +38,7 @@ const (
 )
 
 func (s server) CreatePost(ctx context.Context, req *postservice.CreatePostRequest) (*postservice.CreatePostResponse, error) {
+	var location string
 	postData := req.GetPost()
 
 	post := makePostModel(postData)
@@ -41,6 +47,16 @@ func (s server) CreatePost(ctx context.Context, req *postservice.CreatePostReque
 	joinPost := &model.JoinPost{
 		Post:     post,
 		PostTags: tags,
+	}
+
+	if isBase64(post.Image) == true {
+		// 画像をS3にアップロードし、URLを受け取る。
+		location, err = aws.Upload(post.Image[strings.IndexByte(post.Image, ',')+1:])
+
+		if err != nil {
+			return nil, err
+		}
+		joinPost.Post.Image = location
 	}
 
 	// post, tagsをJoinしてinteractor.Createに渡す
@@ -97,6 +113,9 @@ func (s server) UpdatePost(ctx context.Context, req *postservice.UpdatePostReque
 		Post:     makePostModel(postData),
 		PostTags: makePostTagModel(postData),
 	}
+	// 更新時はimageの更新は行わない
+	joinPost.Post.Image = ""
+
 	if _, err := s.PostUsecase.Update(joinPost); err != nil {
 		return nil, err
 	}
@@ -153,12 +172,35 @@ func (s server) DeleteComment(ctx context.Context, req *postservice.DeleteCommen
 	return s.makeDeleteCommentResponse(StatusDeletePostSuccess), nil
 }
 
+func (s server) DeletePostsCommentsByUserID(ctx context.Context, req *postservice.DeletePostsCommentsByUserIDRequest) (*postservice.DeletePostsCommentsByUserIDResponse, error) {
+	createUserID := req.GetCreateUserId()
+
+	// 退会ユーザーの投稿記事を削除
+	if err := s.PostUsecase.DeletePostsByUserID(createUserID); err != nil {
+		return nil, err
+	}
+
+	// 退会ユーザーのコメントを削除
+	if err := s.PostUsecase.DeleteCommentsByUserID(createUserID); err != nil {
+		return nil, err
+	}
+
+	res := &postservice.DeletePostsCommentsByUserIDResponse{
+		Status: &postservice.ResponseStatus{
+			Code: StatusDeletePostsCommentsByUserIDSuccess,
+		},
+	}
+
+	return res, nil
+}
+
 func makePostModel(gPost *postservice.Post) *model.Post {
 	post := &model.Post{
 		ID: gPost.GetId(),
 		// Status:       gPost.GetStatus(),
 		Title:        gPost.GetTitle(),
 		Content:      gPost.GetContent(),
+		Image:        gPost.GetImage(),
 		CreateUserID: gPost.GetCreateUserId(),
 		UpdateUserID: gPost.GetUpdateUserId(),
 	}
@@ -197,6 +239,7 @@ func makeGrpcPost(post *model.JoinPost) *postservice.Post {
 		// Status:       post.Status,
 		Title:          post.Post.Title,
 		Content:        post.Post.Content,
+		Image:          post.Post.Image,
 		CreateUserId:   post.Post.CreateUserID,
 		CreateUserName: post.User.UserName,
 		UpdateUserId:   post.Post.UpdateUserID,
@@ -348,4 +391,10 @@ func (s server) makeDeleteCommentResponse(statusCode string) *postservice.Delete
 		res.Status = responseStatus
 	}
 	return res
+}
+
+// isBase64 base64データであるか判定
+func isBase64(s string) bool {
+	_, err := base64.StdEncoding.DecodeString(s[strings.IndexByte(s, ',')+1:])
+	return err == nil
 }

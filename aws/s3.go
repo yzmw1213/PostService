@@ -17,11 +17,10 @@ import (
 var (
 	sess               *session.Session
 	awsAccessKey       = os.Getenv("AWS_ACCESS_KEY")
-	s3_bucket          = os.Getenv("AWS_S3_BUCKET_NAME")
+	bucket             = os.Getenv("AWS_S3_BUCKET_NAME")
 	awsSecretAccessKey = os.Getenv("AWS_SECRET_ACCESS_KEY")
 	endpoint           = os.Getenv("AWS_S3_ENDPOINT")
 	region             = os.Getenv("AWS_S3_REGION")
-	downloadDir        = os.Getenv("OBJECT_DOWNLOAD_DIR")
 	letters            = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 )
 
@@ -41,6 +40,7 @@ func GetS3Session() {
 	sess = session
 }
 
+// Upload puts object on S3 bucket specified
 func Upload(imageBase64 string) (string, error) {
 	GetS3Session()
 	// ファイルを開く
@@ -55,20 +55,17 @@ func Upload(imageBase64 string) (string, error) {
 	wb.Write(data)
 
 	uo, err := uploader.Upload(&s3manager.UploadInput{
-		Bucket: &s3_bucket,
+		Bucket: &bucket,
 		Key:    &key,
 		Body:   wb,
 	})
 
-	log.Println("bucket", s3_bucket)
-	log.Println("key", key)
-	log.Println("location", uo.Location)
 	if err != nil {
 		log.Println(err)
 	}
-	S3_END := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/", s3_bucket, region)
+	s3Endpoint := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/", bucket, region)
 
-	return strings.Replace(uo.Location, S3_END, "", 1), err
+	return strings.Replace(uo.Location, s3Endpoint, "", 1), err
 }
 
 // randSeq 指定した文字数のランダム文字列を返却

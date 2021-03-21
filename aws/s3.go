@@ -60,8 +60,11 @@ func Upload(imageBase64 string) (string, error) {
 		Body:   wb,
 	})
 
+	log.Println("bucket", s3_bucket)
+	log.Println("key", key)
+	log.Println("location", uo.Location)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	S3_END := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/", s3_bucket, region)
 

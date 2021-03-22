@@ -3,6 +3,8 @@ package grpc
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
+	"os"
 	"strings"
 
 	"github.com/yzmw1213/PostService/aws"
@@ -35,6 +37,11 @@ const (
 	StatusPostContentStringCount string = "POST_CONTENT_COUNT_ERROR"
 	// StatusCommentContentStringCount 投稿内容文字数が無効のエラーステータス
 	StatusCommentContentStringCount string = "POST_CONTENT_COUNT_ERROR"
+)
+
+var (
+	bucket = os.Getenv("AWS_S3_BUCKET_NAME")
+	region = os.Getenv("AWS_S3_REGION")
 )
 
 func (s server) CreatePost(ctx context.Context, req *postservice.CreatePostRequest) (*postservice.CreatePostResponse, error) {
@@ -234,12 +241,13 @@ func makeGrpcPost(post *model.JoinPost) *postservice.Post {
 	var tags []uint32
 	var likeUsers []uint32
 	var postComments []*postservice.Comment
+	bucketEndpoint := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/", bucket, region)
 	gPost := &postservice.Post{
 		Id: post.Post.ID,
 		// Status:       post.Status,
 		Title:          post.Post.Title,
 		Content:        post.Post.Content,
-		Image:          post.Post.Image,
+		Image:          fmt.Sprintf("%s%s", bucketEndpoint, post.Post.Image),
 		CreateUserId:   post.Post.CreateUserID,
 		CreateUserName: post.User.UserName,
 		UpdateUserId:   post.Post.UpdateUserID,

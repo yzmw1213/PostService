@@ -120,11 +120,8 @@ func getAllPosts(ctx context.Context) ([]model.Post, error) {
 	var posts []model.Post
 	DB := db.GetDB()
 
-	_, err := DB.Find(&posts).Rows()
-	// if err != nil {
-	// 	log.Println("Error occured")
-	// 	return nil, err
-	// }
+	_, err := DB.Order("created_at desc").Find(&posts).Rows()
+
 	return posts, err
 }
 
@@ -133,7 +130,7 @@ func getPostsByCreateUserID(ctx context.Context, id uint32) ([]model.Post, error
 	var posts []model.Post
 	DB := db.GetDB()
 
-	rows, err := DB.Where("create_user_id = ?", id).Find(&posts).Rows()
+	rows, err := DB.Order("created_at desc").Where("create_user_id = ?", id).Find(&posts).Rows()
 	defer rows.Close()
 
 	if err != nil {
@@ -148,7 +145,7 @@ func getPostsByLikeUserID(ctx context.Context, id uint32) ([]model.Post, error) 
 	var posts []model.Post
 	DB := db.GetDB()
 
-	rows, err := DB.Table("posts").Where("post_like_users.user_id = ?", id).Select("posts.id, posts.title, posts.content, posts.create_user_id, posts.image").Joins("inner join post_like_users on post_like_users.post_id = posts.id").Rows()
+	rows, err := DB.Order("created_at desc").Table("posts").Where("post_like_users.user_id = ?", id).Select("posts.id, posts.title, posts.content, posts.create_user_id, posts.image").Joins("inner join post_like_users on post_like_users.post_id = posts.id").Rows()
 	defer rows.Close()
 
 	for rows.Next() {
@@ -167,7 +164,7 @@ func getPostsByTagID(ctx context.Context, id uint32) ([]model.Post, error) {
 	var posts []model.Post
 	DB := db.GetDB()
 
-	rows, err := DB.Table("posts").Where("post_tags.tag_id = ?", id).Select("posts.id, posts.title, posts.content, posts.create_user_id, posts.image").Joins("inner join post_tags on post_tags.post_id = posts.id").Rows()
+	rows, err := DB.Order("created_at desc").Table("posts").Where("post_tags.tag_id = ?", id).Select("posts.id, posts.title, posts.content, posts.create_user_id, posts.image").Joins("inner join post_tags on post_tags.post_id = posts.id").Rows()
 	defer rows.Close()
 
 	for rows.Next() {

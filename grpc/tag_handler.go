@@ -88,7 +88,7 @@ func (s server) ListTag(ctx context.Context, req *tagservice.ListTagRequest) (*t
 
 // ListValidTag 公開ステータスが公開のタグを取得して返す
 func (s server) ListValidTag(ctx context.Context, req *tagservice.ListValidTagRequest) (*tagservice.ListValidTagResponse, error) {
-	rows, err := s.TagUsecase.ListAllValidTag()
+	rows, err := s.TagUsecase.ListValidTag()
 	if err != nil {
 		return nil, err
 	}

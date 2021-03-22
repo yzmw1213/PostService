@@ -70,7 +70,7 @@ func (i *TagInteractor) ListValidTag() ([]model.Tag, error) {
 	DB := db.GetDB()
 	var tags []model.Tag
 
-	err := DB.Order("created_at desc").Where("status = ?", ValidTagStatus).Select("tags.id, tags.tag_name, tag.status").Find(&tags).Error
+	err := DB.Order("created_at desc").Where("status = ?", ValidTagStatus).Select("tags.id, tags.tag_name, tags.status").Find(&tags).Error
 	if err != nil {
 		fmt.Println("Error happened on ListValidTag")
 		return []model.Tag{}, err

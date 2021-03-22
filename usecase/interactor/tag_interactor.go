@@ -70,7 +70,9 @@ func (i *TagInteractor) ListValidTag() ([]model.Tag, error) {
 	DB := db.GetDB()
 	var tags []model.Tag
 
-	if err := DB.Where("status = ?", "1").Find(&tags).Error; err != nil {
+	err := DB.Order("created_at desc").Where("status = ?", ValidTagStatus).Select("tags.id, tags.tag_name").Find(&tags).Error
+	if err != nil {
+		fmt.Println("Error happened on ListValidTag")
 		return []model.Tag{}, err
 	}
 	return tags, nil
@@ -80,24 +82,11 @@ func (i *TagInteractor) ListValidTag() ([]model.Tag, error) {
 func listAllTag(ctx context.Context) ([]model.Tag, error) {
 	DB := db.GetDB()
 
-	_ = DB.Find(&tags)
+	_ = DB.Order("created_at desc").Find(&tags)
 	if err != nil {
 		log.Println("Error occured")
 		return nil, err
 	}
-	return tags, nil
-}
-
-// ListAllValidTag 有効タグ全件取得
-func (i *TagInteractor) ListAllValidTag() ([]model.Tag, error) {
-	DB := db.GetDB()
-	var tags []model.Tag
-	err := DB.Where("status = ?", ValidTagStatus).Select("tags.id, tags.tag_name").Find(&tags).Error
-	if err != nil {
-		fmt.Println("Error happened")
-		return []model.Tag{}, err
-	}
-
 	return tags, nil
 }
 

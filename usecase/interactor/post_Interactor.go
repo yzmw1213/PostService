@@ -336,7 +336,7 @@ func (p *PostInteractor) DeleteComment(id uint32) error {
 func listPostTagsByID(ID uint32) ([]model.PostTag, error) {
 	var postTagList []model.PostTag
 	DB := db.GetDB()
-	rows, err := DB.Where("post_id = ?", ID).Find(&postTags).Rows()
+	rows, err := DB.Where("post_tags.post_id = ?", ID).Find(&postTags).Joins("inner join tags on tags.id = post_tags.tag_id and tags.status = 1").Rows()
 	if err != nil {
 		log.Println("Error occured")
 		return nil, err

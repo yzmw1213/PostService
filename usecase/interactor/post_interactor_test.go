@@ -35,8 +35,6 @@ func TestCreate(t *testing.T) {
 	//
 	joinPost := makeJoinPost(post, DemoUser, postTags, nil, nil)
 
-	// 登録前のpostTag登録数
-	beforePostTagCount := countPostTag()
 	createdPost, err := i.Create(&joinPost)
 
 	assert.Equal(t, nil, err)
@@ -44,15 +42,14 @@ func TestCreate(t *testing.T) {
 	assert.Equal(t, post.Content, createdPost.Post.Content)
 	assert.NotEqual(t, 0, createdPost.Post.ID)
 
-	// 登録後のpostTag登録数
-	afterPostTagCount := countPostTag()
-
 	// Postと同一PostIDのPostTagが登録されている事を確認
 	postID := createdPost.Post.ID
 	postTags, err = listPostTagsByID(postID)
+
+	// 登録後のpostTag登録数
+	afterPostTagCount := countPostTagByID(postID)
 	assert.Equal(t, nil, err)
-	assert.Equal(t, 3, len(postTags))
-	assert.NotEqual(t, beforePostTagCount, afterPostTagCount)
+	assert.Equal(t, 3, afterPostTagCount)
 }
 
 func TestCreateContentNull(t *testing.T) {

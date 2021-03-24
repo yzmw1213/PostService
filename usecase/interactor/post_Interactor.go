@@ -462,6 +462,14 @@ func countPostTag() int {
 	return count
 }
 
+// countPostTagByID 投稿に紐づけられているタグ件数を取得
+func countPostTagByID(id uint32) int {
+	var count int
+	DB := db.GetDB()
+	DB.Where("post_id = ?", id).Model(&postTag).Count(&count)
+	return count
+}
+
 // countPostTagByPostID IDを元に投稿に付けられているタグの件数を取得する
 func countPostTagByPostID(ID uint32) int {
 	var count int

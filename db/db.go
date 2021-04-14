@@ -55,11 +55,13 @@ func Close() {
 
 // GetDB DB接続情報を返す
 func GetDB() *gorm.DB {
-	initDB()
-	//
 	if tx != nil {
 		return tx
 	}
+	if DB == nil {
+		initDB()
+	}
+
 	return DB
 }
 

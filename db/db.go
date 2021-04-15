@@ -67,7 +67,6 @@ func GetDB() *gorm.DB {
 
 // StartBegin トランザクションを開始する。
 func StartBegin() *gorm.DB {
-	DB = GetDB()
 	tx = DB.Begin()
 	return tx
 }

@@ -25,6 +25,8 @@ const (
 	StatusCreateCommentSuccess string = "COMMENT_CREATE_SUCCESS"
 	// StatusUpdateCommentSuccess コメント更新成功ステータス
 	StatusUpdateCommentSuccess string = "COMMENT_UPDATE_SUCCESS"
+	// StatusDeleteCommentSuccess コメント削除成功ステータス
+	StatusDeleteCommentSuccess string = "COMMENT_DELETE_SUCCESS"
 	// StatusDeletePostsCommentsByUserIDSuccess 投稿ユーザーID指定削除成功ステータス
 	StatusDeletePostsCommentsByUserIDSuccess string = "COMMENT_DELETEE_BY_USERID_SUCCESS"
 	// StatusDeletePostSuccess 投稿削除成功ステータス
@@ -176,7 +178,7 @@ func (s server) DeleteComment(ctx context.Context, req *postservice.DeleteCommen
 	if err := s.PostUsecase.DeleteComment(id); err != nil {
 		return nil, err
 	}
-	return s.makeDeleteCommentResponse(StatusDeletePostSuccess), nil
+	return s.makeDeleteCommentResponse(StatusDeleteCommentSuccess), nil
 }
 
 func (s server) DeletePostsCommentsByUserID(ctx context.Context, req *postservice.DeletePostsCommentsByUserIDRequest) (*postservice.DeletePostsCommentsByUserIDResponse, error) {
